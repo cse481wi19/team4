@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-# TODO: import ?????????
-# TODO: import ???????_msgs.msg
+import actionlib
+import control_msgs.msg
 import rospy
 
 # TODO: ACTION_NAME = ???
@@ -17,6 +17,8 @@ class Gripper(object):
 
     def __init__(self):
         # TODO: Create actionlib client
+	client = actionlib.SimpleActionClient('gripper_controller/gripper_action', control_msgs.msg.GripperCommandAction)
+	client.wait_for_server()
         # TODO: Wait for server
         pass
 
