@@ -1,3 +1,0 @@
-joint_state_controller:
-  publish_rate: 50
-  type: joint_state_controller/JointStateController
