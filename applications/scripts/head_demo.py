@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import rospy
-
+import robot_api
 
 def print_usage():
     print 'Usage:'
@@ -27,20 +27,20 @@ def main():
         print_usage()
         return
     command = argv[1]
-
+    head = robot_api.Head()
     if command == 'look_at':
         if len(argv) < 6:
             print_usage()
             return
         frame_id, x, y, z = argv[2], float(argv[3]), float(argv[4]), float(
             argv[5])
-        rospy.logerr('Not implemented.')
+        head.look_at(frame_id, x, y, z)
     elif command == 'pan_tilt':
         if len(argv) < 4:
             print_usage()
             return
         pan, tilt = float(argv[2]), float(argv[3])
-        rospy.logerr('Not implemented.')
+        head.pan_tilt(pan, tilt)
     else:
         print_usage()
 
