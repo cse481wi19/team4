@@ -19,8 +19,6 @@ class Gripper(object):
         # TODO: Create actionlib client
     	self.client = actionlib.SimpleActionClient('gripper_controller/gripper_action', control_msgs.msg.GripperCommandAction)
     	self.client.wait_for_server()
-        # TODO: Wait for server
-        pass
 
     def open(self):
         """Opens the gripper.
