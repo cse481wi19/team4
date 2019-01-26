@@ -1,0 +1,65 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+
+<dom-module id="web-teleop-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <ros-websocket auto ros="{{ros}}"
+	  url="{{url}}"
+	  on-connection="_handleConnection"
+	  on-close="_handleClose"
+	  on-error="_handleError"></ros-websocket>
+
+	<ros-topic auto
+	  ros="{{ros}}"
+	  topic="joint_state_republisher/torso_lift_joint"
+	  msg-type="std_msgs/Float64"
+	  last-message="{{torsoHeight}}"
+	  on-message="_handleTorsoHeight"
+	></ros-topic>
+
+	<h1>Fetch teleop</h1>
+	[[status]]
+
+	<div>
+	  Torso height: [[torsoHeight.data]] meters
+	</div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class WebTeleopApp extends Polymer.Element {
+      static get is() { return 'web-teleop-app'; }
+      static get properties() {
+	  return {};     
+	}        
+		       
+	_handleConnection() {
+	  this.status = 'Connected to the websocket server.';
+	  console.log(this.status);
+	}
+	_handleClose() {
+	  this.status = 'Closed connection to the websocket server.';
+	  console.log(this.status);
+	}
+	_handleError() {
+	  this.status = 'Error connecting to the websocket server.';
+	  console.log(this.status);
+	}
+	_handleTorsoHeight(evt) {
+	  var msg = evt.detail;
+	  console.log(msg);
+	}
+    }
+
+    window.customElements.define(WebTeleopApp.is, WebTeleopApp);
+  </script>
+</dom-module>
