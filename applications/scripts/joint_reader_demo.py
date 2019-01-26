@@ -1,6 +1,6 @@
 #! /usr/bin/env python                                                                                 
                                                                                                        
-                                                                                import robot_api       
+import robot_api       
 from joint_state_reader import JointStateReader
 import rospy                  
                               
@@ -19,7 +19,7 @@ def main():
     reader = JointStateReader()
     rospy.sleep(0.5)
     # Fetch Only
-    # names = robot_api.ArmJoints.names()
+    names = robot_api.ArmJoints.names()
     # Kuri: Browse joints and initialize your own names list
     # names = []
     arm_vals = reader.get_joints(names)
