@@ -1,3 +1,4 @@
+<!--Team4 Web Interface-->
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
 <link rel="import" href="../bower_components/ros-topic/ros-topic.html">
@@ -13,19 +14,48 @@
 			:host {
 				display: block;
 			}
-			paper-slider {                                                             
-	  			--paper-slider-input: {                                                  
-	    			width: 100px;                                                          
-	  			}                                                                        
+
+			paper-slider {            
+	  			--paper-slider-input: {                    
+	    			width: 100px;                        
+	  			}                       
 			}                                                                          
-			paper-button {                                                             
+			paper-button {                 
 			  	background-color: #eee;                     
 			  	user-select: none;
 			}
 
+			h1, #camera, #btns {
+				margin-bottom: 1em;
+			}
+
+			#forwardbtn {
+				margin-bottom: 0.6em;
+			}
+
+			#interface {
+				margin: auto;
+				text-align: center;
+			}
+
+			#btns {
+				display: flex;
+				align-items: flex-start;
+  				flex-wrap: nowrap;
+  				height: 100%;
+			}
+
+			#btns div {
+				width: 40%;
+			}
+
+			#torso paper-slider, #gripper paper-slider {
+				margin: auto;
+			}
+
 			#driving {
  				display: inline-block;
-			}	
+			}
 
 			#camera img {
 			  	width: 100%
@@ -55,7 +85,7 @@
 		  	msg-type="geometry_msgs/Twist"
 		></ros-topic>
 
-		<ros-service                                                                 
+		<ros-service            
 		  	id="torsoService"
 		  	on-response="_handleTorsoSuccess"
 		  	on-fail="_handleTorsoError"
@@ -64,37 +94,58 @@
 		  	service-type="web_teleop/SetTorso"
 		></ros-service>
 
-		<h1>Fetch teleop</h1>
-		[[status]]
+		<div id="interface">
+			<h1>Fetch Teleop</h1>
+			<p style="color:#4B0082"><b>[[status]]</b></p>
 
-		<div id="camera">
-		  	<img src="//[[hostname]]:8000/stream?topic=/head_camera/rgb/image_raw"></img>
-		</div>
+			<div id="camera">
+			  	<img src="//[[hostname]]:8000/stream?topic=/head_camera/rgb/image_raw"></img>
+			</div>
 
-		<div>
-			Torso height: [[_round(torsoHeight.data, 0.001)]] meters
-		</div>
+			<div id="driving" class="layout vertical">
+	  			<div class="layout horizontal">
+	    			<div class="flex"></div>
+	    			<paper-button
+	    				id="forwardbtn"
+	      				on-down="_startForward"
+	      				on-up="_endBaseCommand"
+	    			>Forward</paper-button>
+	    			<div class="flex"></div>
+	  			</div>
+	  			<div class="layout horizontal">
+	    			<paper-button
+	    				on-down="_startLeft"
+	    				on-up="_endBaseCommand"
+	    			>Left</paper-button>
+	    			<paper-button
+	    				on-down="_startBack"
+	    				on-up="_endBaseCommand"
+	    			>Back</paper-button>
+	    			<paper-button
+	    				on-down="_startRight"
+	    				on-up="_endBaseCommand"
+	    			>Right</paper-button>
+	  			</div>
+			</div>
 
-		<div class="layout horizontal center">                                       
-			<paper-slider min="0" max="0.4" step="0.01" editable                       
-		    	value="{{desiredTorsoHeight}}"></paper-slider>                           
-		  	<paper-button on-tap="_setTorso">Set torso</paper-button>                                  
-		</div>
+			<div id="btns">
+				<div id="torso">
+					<h3>Torso height: <b>[[_round(torsoHeight.data, 0.001)]]</b> meters</h3>
+					<paper-slider min="0" max="0.4" step="0.01" editable value="{{desiredTorsoHeight}}"></paper-slider>          
+				  	<paper-button on-tap="_setTorso">Set torso</paper-button> 
+				</div>
 
-		<div id="driving" class="layout vertical">
-  			<div class="layout horizontal">
-    			<div class="flex"></div>
-    			<paper-button
-      				on-down="_startForward"
-      				on-up="_endBaseCommand"
-    			>Forward</paper-button>
-    			<div class="flex"></div>
-  			</div>
-  			<div class="layout horizontal">
-    			<paper-button>Left</paper-button>
-    			<paper-button>Back</paper-button>
-    			<paper-button>Right</paper-button>
-  			</div>
+				<div id="arm">
+					<h3>Arm</h3>
+				</div>
+
+				<div id="gripper">
+					<h3>Gripper</h3>
+					<paper-button>Open</paper-button>
+					<paper-slider min="0" max="60" step="5"></paper-slider>
+					<paper-button on-tap="_setTorso">Set limit &amp; Close</paper-button> 
+				</div>
+			</div>
 		</div>
 
 	</template>
@@ -106,6 +157,7 @@
 	     */
 	    class WebTeleopApp extends Polymer.Element {
 	     	static get is() { return 'web-teleop-app'; }
+
 	     	static get properties() {
 	     		return {};     
 	     	}        
@@ -114,52 +166,86 @@
 	     		this.status = 'Connected to the websocket server.';
 	     		console.log(this.status);
 	     	}
+
 	     	_handleClose() {
 	     		this.status = 'Closed connection to the websocket server.';
 	     		console.log(this.status);
 	     	}
+
 	     	_handleError() {
 	     		this.status = 'Error connecting to the websocket server.';
 	     		console.log(this.status);
 	     	}
+
 	     	_handleTorsoHeight(evt) {
 	     		var msg = evt.detail;
 	     		console.log(msg);
 	     	}
 
-			// Rounds val to a given precision, where the precision is 		given as the    
-			// step size between numbers in the output range.                          
-			// E.g., _round(0.053, 0.1) = 0.1                                          
-			// E.g., _round(0.053, 0.01) = 0.05                                        
-			// E.g., _round(0.053, 0.001) = 0.053                                      
-			_round(val, precision) {                                                   
-				return Math.round(val/precision) * precision;                            
+			// Rounds val to a given precision, where the precision is given as the    
+			// step size between numbers in the output range.
+			_round(val, precision) {                   
+				return Math.round(val/precision) * precision;
 			}
 
 			_setTorso() {
 			  	this.status = 'Setting torso to ' + this.desiredTorsoHeight + ' meters...';
 			  	this.$.torsoService.call({height: this.desiredTorsoHeight});
 			}
+
 			_handleTorsoSuccess() {
 			  	this.status = 'Set torso to ' + this.desiredTorsoHeight + ' meters.';
 			}
+
 			_handleTorsoError(evt) {
 			  	this.status = 'Error: ' + evt.detail;
 			}
 
 			_startForward(evt) {
-			  	evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
-			  	this.status = 'Driving forward...';
-			  	var baseTopic = this.$.baseTopic; // Get <ros-topic>
+				evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
+			  	this._move(this, "forward");
+			}
+
+			_startBack(evt) {
+				evt.preventDefault();
+			  	this._move(this, "back");
+			}
+
+			_startLeft(evt) {
+				evt.preventDefault();
+			  	this._move(this, "left");
+			}
+
+			_startRight(evt) {
+				evt.preventDefault();
+			  	this._move(this, "right");
+			}
+
+			_move(obj, direction) {
+				obj.status = 'Driving ' + direction + '...';
+				var baseTopic = this.$.baseTopic; // Get <ros-topic>
 			  	if (this.baseCommand) {
-			    // The timer should not be set at this point, but clear it just in case
-			    clearInterval(this.baseCommand);
+			    	// The timer should not be set at this point, but clear it just in case
+			    	clearInterval(this.baseCommand);
 			  	}
-			  	this.baseCommand = setInterval(function() {
+
+			  	var xv = 0;
+			  	var yv = 0;
+			  	if (direction === "forward") {
+					xv = 0.1;
+				} else if (direction === "back") {
+					xv = -0.1;
+				} else if (direction === "left") {
+					yv = 0.1;
+				} else {
+					yv = -0.1;
+				}
+
+			  	this.baseCommand = setInterval(function(xv, yv) {
 			    	baseTopic.publish({
 			      		linear: {
-			        		x: 0.1, // Set positive or negative meters/s to drive
-			        		y: 0,
+			        		x: xv, // Set positive or negative meters/s to drive
+			        		y: yv,
 			        		z: 0
 			      		},
 			      		angular: {
