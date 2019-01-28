@@ -1,6 +1,9 @@
 # TODO: import ?????????
 # TODO: import ???????_msgs.msg
 # TODO: import ??????????_msgs.msg
+import actionlib
+import control_msgs.msg
+import trajectory_msgs.msg
 import rospy
 
 from .arm_joints import ArmJoints
@@ -36,14 +39,14 @@ class Arm(object):
         # TODO: Create a trajectory point
         point = trajectory_msgs.msg.JointTrajectoryPoint()
         # TODO: Set position of trajectory point
-        point.positions.append(arm_joints.values())
+        point.positions.extend(arm_joints.values())
         # TODO: Set time of trajectory point
         point.time_from_start = rospy.Duration(TIME_FROM_START)
 
         # TODO: Create goal
         goal = control_msgs.msg.FollowJointTrajectoryGoal()
         # TODO: Add joint name to list
-        goal.trajectory.joint_names.append(ArmJoints.names())
+        goal.trajectory.joint_names.extend(ArmJoints.names())
         # TODO: Add the trajectory point created above to trajectory
         goal.trajectory.points.append(point)
         # TODO: Send goal
