@@ -106,7 +106,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES web_teleop
- CATKIN_DEPENDS joint_state_reader robot_api roscpp rospy
+ CATKIN_DEPENDS message_runtime robot_api roscpp rospy
 #  DEPENDS system_lib
 )
 

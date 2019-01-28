@@ -23,15 +23,15 @@ def main():
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         # TODO: get torso joint value
-        torso_lj = reader.get_joint('torso_lift_joint')
         # TODO: publish torso joint value
+        torso_lj = reader.get_joint('torso_lift_joint')
         torso_pub.publish(torso_lj)
 
-        # reader.get_joint('shoulder_pan_joint')                                                   
-        # reader.get_joints(['shoulder_pan_joint', 'shoulder_lift_joint']) 
-        
         rate.sleep()
 
 
 if __name__ == '__main__':
     main()
+
+
+     
