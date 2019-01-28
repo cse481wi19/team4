@@ -12,12 +12,13 @@ class JointStateReader(object):
         joint_reader.get_joints(['shoulder_pan_joint', 'shoulder_lift_joint'])                         
     """                                                                                                
     def __init__(self):  
-        self._subs = rospy.Subscriber('joint_states', sensor_msgs.msg.JointState, callback)                                                                                                                                                                   
+        self._subs = rospy.Subscriber('joint_states', sensor_msgs.msg.JointState, self.callback)                                                                                                                                                                   
         self._joint_values = {}
 
     def callback(self, msg):
-        for i in range(msg.position):
-            self._joint_values[msg.name[i]] = msg.position[i]               
+        for i, name in enumerate(msg.name):
+            if i < len(msg.position):
+                self._joint_values[name] = msg.position[i]               
 
     def get_joint(self, name):                                                                         
         """Gets the latest joint value.                                                                
