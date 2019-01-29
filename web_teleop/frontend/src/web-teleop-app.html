@@ -41,12 +41,12 @@
       #btns {
         display: flex;
         align-items: flex-start;
-          flex-wrap: nowrap;
-          height: 100%;
+        flex-wrap: wrap;
+        height: 100%;
       }
 
-      #btns div {
-        width: 40%;
+      #gripper, #torso {
+        width: 50%;
       }
 
       #torso paper-slider, #gripper paper-slider {
@@ -55,14 +55,17 @@
 
       #driving {
         display: inline-block;
+        margin-bottom: 3em;
       }
 
       #camera img {
-          width: 100%
+          width: 100%;
+          margin: auto;
           height: auto;
       }
-
+      
     </style>
+
     <ros-websocket auto ros="{{ros}}"
       url="{{url}}"
       on-connection="_handleConnection"
@@ -135,59 +138,61 @@
       <p style="color:#4B0082"><b>[[status]]</b></p>
 
       <div id="camera">
-          <img src="//[[hostname]]:8000/stream?topic=/head_camera/rgb/image_raw"></img>
+        <img src="//[[hostname]]:8000/stream?topic=/head_camera/rgb/image_raw"></img>
       </div>
 
       <div id="driving" class="layout vertical">
-          <div class="layout horizontal">
-            <div class="flex"></div>
-            <paper-button
-              id="forwardbtn"
-                on-down="_startForward"
-                on-up="_endBaseCommand"
-            >Forward</paper-button>
-            <div class="flex"></div>
-          </div>
-          <div class="layout horizontal">
-            <paper-button
-              on-down="_startLeft"
-              on-up="_endBaseCommand"
-            >Left</paper-button>
-            <paper-button
-              on-down="_startBack"
-              on-up="_endBaseCommand"
-            >Back</paper-button>
-            <paper-button
-              on-down="_startRight"
-              on-up="_endBaseCommand"
-            >Right</paper-button>
-          </div>
+        <p><b>Head Control</b></p>
+        <div class="layout horizontal">
+          <div class="flex"></div>
+          <paper-button
+            id="forwardbtn"
+              on-down="_lookUp"
+              on-up="_endHeadCommand"
+          >Up</paper-button>
+          <div class="flex"></div>
+        </div>
+        <div class="layout horizontal">
+          <paper-button
+            on-down="_lookLeft"
+            on-up="_endHeadCommand"
+          >Left</paper-button>
+          <paper-button
+            on-down="_lookDown"
+            on-up="_endHeadCommand"
+          >Down</paper-button>
+          <paper-button
+            on-down="_lookRight"
+            on-up="_endHeadCommand"
+          >Right</paper-button>
+        </div>
       </div>
 
       <div id="driving" class="layout vertical">
-          <div class="layout horizontal">
-            <div class="flex"></div>
-            <paper-button
-              id="forwardbtn"
-                on-down="_lookUp"
-                on-up="_endHeadCommand"
-            >Up</paper-button>
-            <div class="flex"></div>
-          </div>
-          <div class="layout horizontal">
-            <paper-button
-              on-down="_lookLeft"
-              on-up="_endHeadCommand"
-            >Left</paper-button>
-            <paper-button
-              on-down="_lookDown"
-              on-up="_endHeadCommand"
-            >Down</paper-button>
-            <paper-button
-              on-down="_lookRight"
-              on-up="_endHeadCommand"
-            >Right</paper-button>
-          </div>
+        <p><b>Base Control</b></p>
+        <div class="layout horizontal">
+          <div class="flex"></div>
+          <paper-button
+            id="forwardbtn"
+              on-down="_startForward"
+              on-up="_endBaseCommand"
+          >Forward</paper-button>
+          <div class="flex"></div>
+        </div>
+        <div class="layout horizontal">
+          <paper-button
+            on-down="_startLeft"
+            on-up="_endBaseCommand"
+          >Left</paper-button>
+          <paper-button
+            on-down="_startBack"
+            on-up="_endBaseCommand"
+          >Back</paper-button>
+          <paper-button
+            on-down="_startRight"
+            on-up="_endBaseCommand"
+          >Right</paper-button>
+        </div>
       </div>
 
       <div id="btns">
@@ -196,19 +201,18 @@
           <paper-slider min="0" max="0.4" step="0.01" editable value="{{desiredTorsoHeight}}"></paper-slider>          
             <paper-button on-tap="_setTorso">Set torso</paper-button> 
         </div>
-
+        
         <div id="arm">
           <h3>Arm</h3>
-          <paper-slider min="-1.6" max="1.6" step="0.001" editable value="{{desiredArm1}}"></paper-slider><p>shoulder pan</p>
-          <paper-slider min="-1.2" max="1.5" step="0.001" editable value="{{desiredArm2}}"></paper-slider><p>shoulder lift</p>
-          <paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm3}}"></paper-slider><p>upperarm roll</p>
-          <paper-slider min="-2.2" max="2.2" step="0.001" editable value="{{desiredArm4}}"></paper-slider><p>elbow flex</p>
-          <paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm5}}"></paper-slider><p>forearm roll</p>
-          <paper-slider min="-2.1" max="2.1" step="0.001" editable value="{{desiredArm6}}"></paper-slider><p>wrist flex</p>
-          <paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm7}}"></paper-slider><p>wrist roll</p>
-          <paper-button on-tap="_setArm">Set Arm</paper-button>
-          
+          <p>shoulder pan</p><paper-slider min="-1.6" max="1.6" step="0.001" editable value="{{desiredArm1}}"></paper-slider>
+          <p>shoulder lift</p><paper-slider min="-1.2" max="1.5" step="0.001" editable value="{{desiredArm2}}"></paper-slider>
+          <p>upperarm roll</p><paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm3}}"></paper-slider>
+          <p>elbow flex</p><paper-slider min="-2.2" max="2.2" step="0.001" editable value="{{desiredArm4}}"></paper-slider>
+          <p>forearm roll</p><paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm5}}"></paper-slider>
+          <p>wrist flex</p><paper-slider min="-2.1" max="2.1" step="0.001" editable value="{{desiredArm6}}"></paper-slider>
+          <p>wrist roll</p><paper-slider min="-3.14" max="3.14" step="0.001" editable value="{{desiredArm7}}"></paper-slider>
         </div>
+        <paper-button on-tap="_setArm">Set Arm</paper-button>
 
         <div id="gripper">
           <h3>Gripper</h3>
