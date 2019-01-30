@@ -1,0 +1,84 @@
+<!--Team4 Web Map Annotator Interface-->
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+
+<!--TODO: create a new element-->
+
+<dom-module id="map_annotator-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <!--DOM elements-->
+    <ros-websocket auto ros="{{ros}}"
+      url="{{url}}"
+      on-connection="_handleConnection"
+      on-close="_handleClose"
+      on-error="_handleError"
+    ></ros-websocket>
+
+    <ros-topic auto
+      ros="{{ros}}"
+      topic="map_annotator/pose_names"
+      msg-type="map_annotator/PoseNames"
+      last-message="{{poseNames}}"
+      on-message="_handlePoseNames"
+    ></ros-topic>
+
+    <!--Body-->
+    <h2>Hello [[prop1]]!</h2>
+    <h1>Fetch Map Annotator</h1>
+    <p style="color:#4B0082"><b>[[status]]</b></p>
+
+    <h2>Poses</h2>
+    <template is="dom-repeat" items="[[poseNames.names]]">
+      <div>[[item]]</div>
+    </template>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class Map_annotatorApp extends Polymer.Element {
+      static get is() { return 'map_annotator-app'; }
+
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'map_annotator-app'
+          }
+        };
+      }
+
+      _handleConnection() {
+        this.status = 'Connected to the websocket server.';
+        console.log(this.status);
+      }
+
+      _handleClose() {
+        this.status = 'Closed connection to the websocket server.';
+        console.log(this.status);
+      }
+
+      _handleError() {
+        this.status = 'Error connecting to the websocket server.';
+        console.log(this.status);
+      }
+
+      _handlePoseNames(evt) {
+        var msg = evt.detail;
+        console.log('Pose list: ', msg);
+        this.poselist = msg;
+      }
+    }
+
+    window.customElements.define(Map_annotatorApp.is, Map_annotatorApp);
+  </script>
+</dom-module>
