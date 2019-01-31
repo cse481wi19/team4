@@ -1,0 +1,99 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<dom-module id="map-annotator-pose">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <ros-topic
+      auto
+      id="userActions"
+      topic="map_annotator/user_actions"
+      ros="{{ros}}"
+      msg-type="map_annotator/UserAction"
+    ></ros-topic>
+
+    <ros-service            
+      id="deleteUserActionsService"
+      on-response="_handleDeleteActionSuccess"
+      on-fail="_handleDeleteActionError"
+      name="/map_annotator/delete_user_action"
+      ros="{{ros}}"
+      service-type="map_annotator/DeleteUserAction"
+    ></ros-service>
+
+    <ros-service            
+      id="gotoUserActionsService"
+      on-response="_handleGotoActionSuccess"
+      on-fail="_handleGotoActionError"
+      name="/map_annotator/goto_user_action"
+      ros="{{ros}}"
+      service-type="map_annotator/GotoUserAction"
+    ></ros-service>
+
+    <span style="color:#4B0082"><b>[[poseName]]</b></span>
+    <paper-button on-tap="_handleGoto">Go To</paper-button>
+    <paper-button on-tap="_handleDelete">Delete</paper-button>
+
+
+  </template>
+
+  <script>
+    class MapAnnotatorPose extends Polymer.Element {
+      static get is() { return 'map-annotator-pose'; }
+
+      static get properties() {
+        return {
+          poseName: String,
+          ros: Object
+        };
+      }
+
+      _handleDelete(evt) {
+        evt.srcElement.innerHTML = 'Deleting';
+        evt.srcElement.disabled = true;
+        var msg = {
+          command: 'delete',
+          name: this.poseName
+        };     
+        this.$.userActions.publish(msg);
+      }
+
+      _handleDeleteActionSuccess(evt) {
+        evt.srcElement.innerHTML = 'Delete';
+        evt.srcElement.disabled = false;
+      }
+
+      _handleSaveActionError(evt) {
+        alert('Error: ' + evt.detail);
+        evt.srcElement.disabled = false;
+      }
+
+      _handleGoto(evt) {
+        evt.srcElement.innerHTML = 'Moving';
+        evt.srcElement.disabled = true;
+        var msg = {
+          command: 'goto',
+          name: this.poseName
+        };     
+        this.$.userActions.publish(msg);
+      }
+
+      _handleGotoActionSuccess(evt) {
+        evt.srcElement.innerHTML = 'Go To';
+        evt.srcElement.disabled = false;
+      }
+
+      _handleGotoActionError(evt) {
+        alert('Error: ' + evt.detail);
+        evt.srcElement.disabled = false;
+      }
+    }
+    window.customElements.define(MapAnnotatorPose.is, MapAnnotatorPose);
+  </script>
+</dom-module>
