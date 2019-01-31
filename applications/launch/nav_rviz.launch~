@@ -3,5 +3,5 @@
   <include file="$(find fetch_navigation)/launch/fetch_nav.launch">
     <arg name="map_file" value="$(arg map_file)" />
   </include>
-  <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find applications)/config/navi.rviz" />
+  <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find applications)/config/navigation.rviz" />
 </launch>
