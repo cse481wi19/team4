@@ -67,8 +67,78 @@ class Interactive(object):
 				base.turn(30.0/180*math.pi)
 				
 
+class Annotator(object):
+    def __init__(self, server, x, y, name):
+        self._server = server
+        self._x = x
+        self._y = y
+        self._name = name
+
+    def make(self):
+        int_marker = InteractiveMarker()
+        int_marker.header.frame_id = "map"
+        int_marker.name = self._name
+        int_marker.description = self._name
+        int_marker.pose.position.x = self._x
+        int_marker.pose.position.y = self._y
+        int_marker.pose.orientation.w = 1
+
+        arrow_marker = Marker()
+        arrow_marker.type = Marker.ARROW
+        arrow_marker.pose.orientation.w = 1
+        arrow_marker.scale.x = 0.45
+        arrow_marker.scale.y = 0.05
+        arrow_marker.scale.z = 0.05
+        arrow_marker.color.r = 0.0
+        arrow_marker.color.g = 0.5
+        arrow_marker.color.b = 0.5
+        arrow_marker.color.a = 1.0
+
+        text_marker = Marker()
+        text_marker.type = Marker.TEXT_VIEW_FACING
+        text_marker.pose.orientation.w = 1
+        text_marker.pose.position.z = 1.5
+        text_marker.scale.x = 0.2
+        text_marker.scale.y = 0.2
+        text_marker.scale.z = 0.2
+        text_marker.color.r = 0.5
+        text_marker.color.g = 0.5
+        text_marker.color.b = 0.5
+        text_marker.color.a = 1
+        text_marker.text = self._name
+
+        arrow_control = InteractiveMarkerControl()
+        arrow_control.orientation.w = 1
+        arrow_control.orientation.y = 1
+        arrow_control.interaction_mode = InteractiveMarkerControl.ROTATE_AXIS
+        arrow_control.markers.append(arrow_marker)
+        arrow_control.markers.append(text_marker)
+        arrow_control.always_visible = True
+        int_marker.controls.append(arrow_control)
+
+        control = InteractiveMarkerControl()
+        control.orientation.w = 1
+        control.orientation.y = 1
+        control.orientation.x = 0.02
+        control.orientation.z = 0.02
+        control.interaction_mode = InteractiveMarkerControl.MOVE_PLANE
+        control.always_visible = True
+        int_marker.controls.append(control)
+
+        self._server.insert(int_marker, self.handle_viz_input)
+        self._server.applyChanges()
 
 
+    def handle_viz_input(self, input):
+        base = robot_api.Base()
+        if (input.event_type == InteractiveMarkerFeedback.BUTTON_CLICK):
+            rospy.loginfo(input.marker_name + ' was clicked.')
+            if (input.marker_name == 'forward'): 
+                base.go_forward(0.5)
+            elif (input.marker_name == 'rotate clockwise'):
+                base.turn(-30.0/180*math.pi)
+            elif (input.marker_name == 'rotate counter-clockwise'):
+                base.turn(30.0/180*math.pi)
 
 def main():
 	rospy.init_node('interactive_marker_demo')
@@ -76,15 +146,19 @@ def main():
 
 	# marker_publisher = rospy.Publisher('', Marker, queue_size=5)
 
-	server = InteractiveMarkerServer("simple_marker")
+	server = InteractiveMarkerServer("map_annotator/map_poses")
 	marker1 = Interactive(server, 1, 0, 'forward')
 	marker2 = Interactive(server, 0, 1, 'rotate counter-clockwise')
 	marker3 = Interactive(server, 0, -1, 'rotate clockwise')
+	marker4 = Annotator(server, 0, 0, 'Tada!!')
 	marker1.make()
 	marker2.make()
 	marker3.make()
+	marker4.make()
 	rospy.spin()
 
 
 if __name__ == '__main__':
     main()
+			
+			

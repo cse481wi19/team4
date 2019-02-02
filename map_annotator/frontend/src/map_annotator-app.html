@@ -120,8 +120,8 @@
         var promptMsg = prompt("Please enter a pose name", "Destination");
         if (promptMsg != null) {
           // send the pose name to backend
-          evt.srcElement.innerHTML = 'Saving';
-          evt.srcElement.disabled = true;
+          // evt.srcElement.innerHTML = 'Saving';
+          // evt.srcElement.disabled = true;
           var msg = {
             command: 'save',
             name: promptMsg

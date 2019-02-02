@@ -11,6 +11,7 @@ Panels:
         - /GlobalPath1
         - /LocalPath1
         - /InteractiveMarkers1
+        - /Marker2
       Splitter Ratio: 0.5
     Tree Height: 369
   - Class: rviz/Selection
@@ -211,7 +212,7 @@ Visualization Manager:
       Max Color: 255; 255; 255
       Max Intensity: 999999
       Min Color: 0; 0; 0
-      Min Intensity: 999999
+      Min Intensity: 1.42081e-37
       Name: LaserScan
       Position Transformer: XYZ
       Queue Size: 10
@@ -259,7 +260,7 @@ Visualization Manager:
       Marker Topic: visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        path: true
       Queue Size: 100
       Value: true
     - Alpha: 0.7
@@ -286,11 +287,11 @@ Visualization Manager:
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Name: Particles
       Topic: /particlecloud
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
@@ -364,6 +365,14 @@ Visualization Manager:
       Show Visual Aids: false
       Update Topic: /simple_marker/update
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_marker
+      Name: Marker
+      Namespaces:
+        path: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -388,22 +397,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.18804
+      Distance: 11.1561
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 1.06081
+        Y: -0.0153728
+        Z: 0.790611
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.504796
+      Pitch: 0.964797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.60538
+      Yaw: 3.40353
     Saved: ~
 Window Geometry:
   Displays:
@@ -423,5 +432,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 446
-  Y: 81
+  X: 368
+  Y: 76
