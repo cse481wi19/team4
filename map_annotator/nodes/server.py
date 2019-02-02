@@ -81,24 +81,24 @@ class Annotator(object):
         self._server.applyChanges()
 
 
-    def update_pose(self, input):
-        if (input.event_type == InteractiveMarkerFeedback.POSE_UPDATE):
+    def update_pose(self, feedback):
+        if (feedback.event_type == InteractiveMarkerFeedback.POSE_UPDATE):
             self._db.add(feedback.marker_name, feedback.pose)
             self._server.setPose(feedback.marker_name, feedback.pose)
             self._server.applyChanges()
 
 
 class Server(object):
-    def __init__(self):
+    def __init__(self, database):
         self.server = InteractiveMarkerServer("map_annotator/map_poses")
         self.publisher = rospy.Publisher('map_annotator/pose_names', PoseNames, queue_size=1)
         self.poses = PoseNames()
 
-        self.db = Database()
+        self.db = database
 
 
     def load(self):
-        self._db.load()
+        self.db.load()
         for name in self.db.list():
             self.create(name)
 
@@ -119,17 +119,18 @@ class Server(object):
             pose = Pose()
             pose.position.x = 0
             pose.position.y = 0
-        marker = Annotator(self.server, pose, name, self._db) # add database for create and callback
+        marker = Annotator(self.server, pose, name, self.db) # add database for create and callback
         marker.make() # add into database
         self.poses.names.append(name)
         self.publisher.publish(self.poses)
 
 
 class Database(object):
-    DB_PATH = './marker_db.data'
+    
 
     def __init__(self):
         self._markers = {}
+        self.db_path = 'marker_db.p'
 
     def get(self, name):
         if name in self._markers:
@@ -153,7 +154,7 @@ class Database(object):
 
     def load(self):
         try:
-            with open(DB_PATH, 'r') as f:
+            with open(self.db_path, 'r') as f:
                 self._markers = pickle.load(f)
         except IOError as e:
             rospy.logwarn('No storage information: {}'.format(e))
@@ -161,7 +162,7 @@ class Database(object):
 
     def save(self):
         try:
-            with open(DB_PATH, 'w') as f:
+            with open(self.db_path, 'w') as f:
                 pickle.dump(self._markers, f)
         except IOError as e:
             rospy.logwarn('No storage information: {}'.format(e))
@@ -172,11 +173,19 @@ def main():
     wait_for_time()
 
 	# marker_publisher = rospy.Publisher('', Marker, queue_size=5)
-
-    server = Server()
+    database = Database()
+    server = Server(database)
     server.load()
 
     saveSub = rospy.Subscriber("map_annotator/user_actions", UserAction, server.handleAction)
+
+    def handle_shutdown():
+        poses = PoseNames()
+        server.publisher.publish(poses)
+        database.save()
+
+    rospy.on_shutdown(handle_shutdown)
+
     rospy.spin()
 
 
