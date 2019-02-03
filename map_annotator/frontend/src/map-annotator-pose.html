@@ -55,8 +55,8 @@
       }
 
       _handleDelete(evt) {
-        evt.srcElement.innerHTML = 'Deleting';
-        evt.srcElement.disabled = true;
+        // evt.srcElement.innerHTML = 'Deleting';
+        // evt.srcElement.disabled = true;
         var msg = {
           command: 'delete',
           name: this.poseName
@@ -75,8 +75,8 @@
       }
 
       _handleGoto(evt) {
-        evt.srcElement.innerHTML = 'Moving';
-        evt.srcElement.disabled = true;
+        // evt.srcElement.innerHTML = 'Moving';
+        // evt.srcElement.disabled = true;
         var msg = {
           command: 'goto',
           name: this.poseName

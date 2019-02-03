@@ -3,9 +3,11 @@
 from interactive_markers.interactive_marker_server import InteractiveMarkerServer
 from visualization_msgs.msg import InteractiveMarker, InteractiveMarkerControl, InteractiveMarkerFeedback
 from visualization_msgs.msg import Marker
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import Quaternion, Pose, Point, Vector3
 from std_msgs.msg import Header, ColorRGBA
 import rospy
+import actionlib
 import robot_api
 import math
 import pickle
@@ -92,10 +94,12 @@ class Server(object):
     def __init__(self, database):
         self.server = InteractiveMarkerServer("map_annotator/map_poses")
         self.publisher = rospy.Publisher('map_annotator/pose_names', PoseNames, queue_size=1)
+        self.moveClient = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.poses = PoseNames()
-
         self.db = database
-
+        self.load()
+        self.poses.names.extend(self.db.list())
+        self.publisher.publish(self.poses)
 
     def load(self):
         self.db.load()
@@ -104,12 +108,11 @@ class Server(object):
 
     def handleAction(self, msg):
         if msg.command == "save":
-            print(msg.name)
             self.create(msg.name)
-        # elif msg.command == "delete":
-
-        # elif msg.command == "goto":
-        #     goto()
+        elif msg.command == "delete":
+            self.delete(msg.name)
+        elif msg.command == "goto":
+            self.goto(msg.name)
 
 
 
@@ -121,7 +124,27 @@ class Server(object):
             pose.position.y = 0
         marker = Annotator(self.server, pose, name, self.db) # add database for create and callback
         marker.make() # add into database
-        self.poses.names.append(name)
+        self.poses.names *= 0
+        self.poses.names.extend(self.db.list())
+        self.publisher.publish(self.poses)
+
+    def goto(self, name):
+        pose = self.db.get(name)
+        if pose is None:
+            rospy.logwarn('No poses found: {}'.format(e))
+        else:
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = 'map'
+            goal.target_pose.header.stamp = rospy.Time().now()
+            goal.target_pose.pose = pose
+            self.moveClient.send_goal(goal)
+
+    def delete(self, name):
+        self.db.delete(name)
+        self.server.erase(name)
+        self.server.applyChanges()
+        self.poses.names *= 0
+        self.poses.names.extend(self.db.list())
         self.publisher.publish(self.poses)
 
 
@@ -175,7 +198,6 @@ def main():
 	# marker_publisher = rospy.Publisher('', Marker, queue_size=5)
     database = Database()
     server = Server(database)
-    server.load()
 
     saveSub = rospy.Subscriber("map_annotator/user_actions", UserAction, server.handleAction)
 
