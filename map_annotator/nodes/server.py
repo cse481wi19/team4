@@ -97,9 +97,9 @@ class Server(object):
         self.moveClient = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.poses = PoseNames()
         self.db = database
+        rospy.sleep(3)
         self.load()
-        self.poses.names.extend(self.db.list())
-        self.publisher.publish(self.poses)
+
 
     def load(self):
         self.db.load()
@@ -194,16 +194,17 @@ class Database(object):
 def main():
     rospy.init_node('interactive_marker_demo')
     wait_for_time()
-
+    
 	# marker_publisher = rospy.Publisher('', Marker, queue_size=5)
     database = Database()
     server = Server(database)
 
     saveSub = rospy.Subscriber("map_annotator/user_actions", UserAction, server.handleAction)
 
+
     def handle_shutdown():
-        poses = PoseNames()
-        server.publisher.publish(poses)
+        #poses = PoseNames()
+        #server.publisher.publish(poses)
         database.save()
 
     rospy.on_shutdown(handle_shutdown)

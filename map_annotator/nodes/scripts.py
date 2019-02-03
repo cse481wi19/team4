@@ -194,6 +194,13 @@ class Database(object):
 def main():
     rospy.init_node('interactive_marker_demo')
     wait_for_time()
+    def print_help():
+        print("Commands:")
+        print("\tlist: List saved poses.")
+        print("\tsave <name>: Save the robot's current pose as <name>. Overwrites if <name> already exists.")
+        print("\tdelete <name>: Delete the pose given by <name>.")
+        print("\tgoto <name>: Sends the robot to the pose given by <name>.")
+        print("\thelp: Show this list of commands")
 
 	# marker_publisher = rospy.Publisher('', Marker, queue_size=5)
     database = Database()
@@ -202,50 +209,56 @@ def main():
     saveSub = rospy.Subscriber("map_annotator/user_actions", UserAction, server.handleAction)
 
 
-    print("Welcome to the map annotator!\n")
-    print_help();
+    print("Welcome to the map annotator!")
+    print_help()
     
-    while(true):
-        command = input()
-        if command is "list":
+    while(True):
+        command = raw_input("> ")
+        # print(command)
+        if command == "list":
             poses = database.list()
-            if poses is None:
-                print("No poses\n")
+            if len(poses) == 0:
+                print("No poses")
             else: 
-                print("Poses:\n")
+                print("Poses:")
                 for pose in poses:
-                    print("\t" + pose + "\n")
-                print("\n")
+                    print("\t" + pose)
 
-        elif command[:4] is "save":
-            if command[5:] is None:
-                print("No name given\n")
+        elif command[:4] == "save":
+            if len(command[5:]) == 0:
+                print("No name given")
             else: 
-                serve.create(command[5:])
+                server.create(command[5:])
 
-        elif command[:6] is "delete"
+        elif command[:6] == "delete":
             poses = database.list()
             if command[7:] is None:
                 print("No pose given\n")
             elif command[7:] not in poses:
-                print("No such pose '" + command[7:] + "'\n")
+                print("No such pose '" + command[7:] + "'")
             else:
-                serve.delete(command[7:])
+                server.delete(command[7:])
 
-        elif command[:4] is "goto":
+        elif command[:4] == "goto":
             poses = database.list()
-            if command[5:] is None:
-                print("No pose given\n")
+            if len(command[5:]) == 0:
+                print("No pose given")
             elif command[5:] not in poses:
-                print("No such pose '" + command[5:] + "'\n")
+                print("No such pose '" + command[5:] + "'")
             else:
-                serve.goto(command[5:])
+                server.goto(command[5:])
 
-        elif command[:4] is "help":
-            print_help();
+        elif command[:4] == "help":
+            print_help()
+
+        elif command == 'q':
+            quit()
 
         else:
             print("Invalid command, please re-enter :)")
+
+
+
 
 
     def handle_shutdown():
@@ -253,14 +266,7 @@ def main():
         server.publisher.publish(poses)
         database.save()
 
-    def print_help():
-        print("Commands:\n")
-        print("\tlist: List saved poses.\n")
-        print("\tsave <name>: Save the robot's current pose as <name>. Overwrites if <name> already exists.\n")
-        print("\tdelete <name>: Delete the pose given by <name>.\n")
-        print("\tgoto <name>: Sends the robot to the pose given by <name>.\n")
-        print("\thelp: Show this list of commands\n")
-
+    
 
     rospy.on_shutdown(handle_shutdown)
 
