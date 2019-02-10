@@ -212,7 +212,7 @@ Visualization Manager:
       Max Color: 255; 255; 255
       Max Intensity: 999999
       Min Color: 0; 0; 0
-      Min Intensity: 1.42081e-37
+      Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
       Queue Size: 10
@@ -363,7 +363,7 @@ Visualization Manager:
       Show Axes: false
       Show Descriptions: true
       Show Visual Aids: false
-      Update Topic: /simple_marker/update
+      Update Topic: /map_annotator/map_poses/update
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -409,10 +409,10 @@ Visualization Manager:
         Z: 0.790611
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.964797
+      Pitch: 0.819797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.40353
+      Yaw: 3.25853
     Saved: ~
 Window Geometry:
   Displays:
@@ -432,5 +432,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 368
-  Y: 76
+  X: 719
+  Y: 53
