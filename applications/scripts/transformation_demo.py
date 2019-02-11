@@ -2,7 +2,7 @@
 
 import math
 import numpy as np
-from geometry_msgs.msg import Point, Pose, PoseStamped
+from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
 from std_msgs.msg import ColorRGBA
 import visualization_msgs.msg
 import rospy
@@ -92,12 +92,12 @@ def main():
     ps.pose = transform_to_pose(b_in_a)
     viz_pub.publish(axis_marker(ps))
 
-    #point_in_b = np.array([1, 0, 0, 1])
-    #point_in_a = np.dot(b_in_a, point_in_b)
-    #rospy.loginfo(point_in_b)
-    #rospy.loginfo(point_in_a)
-    #point = Point(point_in_a[0], point_in_a[1], point_in_a[2])
-    #viz_pub.publish(arrow_marker(point))
+    point_in_b = np.array([1, 0, 0, 1])
+    point_in_a = np.dot(b_in_a, point_in_b)
+    rospy.loginfo(point_in_b)
+    rospy.loginfo(point_in_a)
+    point = Point(point_in_a[0], point_in_a[1], point_in_a[2])
+    viz_pub.publish(arrow_marker(point))
 
 if __name__ == '__main__':
     main()
