@@ -76,7 +76,7 @@ class Annotator(object):
 
     def make(self):
         int_marker = InteractiveMarker()
-        int_marker.header.frame_id = "map"
+        int_marker.header.frame_id = "odom"
         int_marker.name = self._name
         int_marker.description = self._name
         int_marker.pose.position.x = self._x
