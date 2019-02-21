@@ -133,6 +133,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/perception_node.cpp)
 add_executable(perception_save_cloud_main src/save_cloud_main.cpp)
+add_executable(perception_point_cloud_demo src/point_cloud_demo.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -140,6 +141,7 @@ add_executable(perception_save_cloud_main src/save_cloud_main.cpp)
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 set_target_properties(perception_save_cloud_main PROPERTIES OUTPUT_NAME save_cloud PREFIX "")
+set_target_properties(perception_point_cloud_demo PROPERTIES OUTPUT_NAME point_cloud_demo PREFIX "")
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -150,6 +152,7 @@ set_target_properties(perception_save_cloud_main PROPERTIES OUTPUT_NAME save_clo
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_point_cloud_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -157,6 +160,9 @@ add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} 
 # )
 target_link_libraries(perception_save_cloud_main
    ${catkin_LIBRARIES}
+)
+target_link_libraries(perception_point_cloud_demo
+  ${catkin_LIBRARIES}
 )
 
 #############
