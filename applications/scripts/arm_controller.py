@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-
+from robot_controllers_msgs.msg import QueryControllerStatesAction, 
+                                        QueryControllerStatesGoal,
+                                       ControllerState
 import rospy
 import robot_api
 
@@ -20,11 +22,10 @@ def main():
     rospy.init_node('arm_controller')
     wait_for_time()
     argv = rospy.myargv()
-    if len(argv) != 1:
+    if len(argv) != 2:
         print_usage()
         return
     command = argv[1]
-    head = robot_api.Head()
     goal = QueryControllerStatesGoal()
     state = ControllerState()
     state.name = 'arm_controller/follow_joint_trajectory'
