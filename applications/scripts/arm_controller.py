@@ -29,7 +29,7 @@ def main():
     goal = QueryControllerStatesGoal()
     state = ControllerState()
     state.name = 'arm_controller/follow_joint_trajectory'
-    client = actionlib.SimpleActionClient(ACTION_SERVER, robot_controllers_msgs.QueryControllerStates)
+    client = actionlib.SimpleActionClient(ACTION_SERVER, robot_controllers_msgs.msg.QueryControllerStates)
     self._controller_client.send_goal(goal)
     self._controller_client.wait_for_result()
     if command == 'start':
