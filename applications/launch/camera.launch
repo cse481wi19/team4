@@ -1,0 +1,13 @@
+<!-- Camera topic to subscribe to -->
+<param name="cam_topic" value="/image_mono" type="str" />
+
+<!-- Camera calibration file -->
+<rosparam file="$(find svo_ros)/param/camera_pinhole.yaml" />
+
+<!-- Default parameter settings: choose between vo_fast and vo_accurate -->
+<rosparam file="$(find svo_ros)/param/vo_robust.yaml" />
+
+<!-- Initial camera orientation, make it point downwards -->
+<param name="init_rx" value="3.14" />
+<param name="init_ry" value="0.00" />
+<param name="init_rz" value="0.00" />
