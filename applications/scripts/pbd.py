@@ -17,6 +17,7 @@ import math
 import pickle
 from map_annotator.msg import PoseNames, UserAction
 
+bool savedBefore = False
 def wait_for_time():
   """Wait for simulated time to begin.
   """
@@ -26,12 +27,16 @@ def wait_for_time():
 class ArTagReader(object):
     def __init__(self):
         self.markers = []
+        self.savedMarkers = []
 
     def callback(self, msg):
         self.markers = msg.markers
 
+    def update(self):
+        self.savedMarkers = self.markers
+
     def getTag(self, tag):
-        for marker in self.markers:
+        for marker in self.savedMarkers:
             if marker.id == int(tag):
                 result = PoseStamped()
                 result.pose = marker.pose
@@ -50,6 +55,9 @@ class Server(object):
     # Currently only add pose relative to tag instead of base_link
     def add(self, name, tag):
         # Calculate the coordinate of wrist based on base_link frame
+        if not savedBefore:
+            reader.update()
+            savedBefore = True
         (position, quaternion) = self.listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
         pose = Pose()
         pose.position.x = position[0]
@@ -78,6 +86,8 @@ class Server(object):
                 self.db.add(name, offset, tag)
 
     def run(self, name):
+        reader.update()
+        savedBefore = False
         if self.db.get(name) is not None:
             for offset, tag in self.db.get(name):
                 if tag == 'base_link':
