@@ -17,9 +17,7 @@ namespace perception {
 //  indices: The indices of points in the point cloud that correspond to the
 //    surface. Empty if no surface was found.
 void SegmentSurface(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                    pcl::PointIndices::Ptr indices,
-                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr subset_cloud,
-                    pcl::ExtractIndices<pcl::PointXYZRGB>::Ptr extract);
+                    pcl::PointIndices::Ptr indices);
 
 // Computes the axis-aligned bounding box of a point cloud.
 //

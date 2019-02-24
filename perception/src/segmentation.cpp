@@ -21,9 +21,7 @@ typedef pcl::PointXYZRGB PointC;
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
 namespace perception {
-void SegmentSurface(PointCloudC::Ptr cloud, pcl::PointIndices::Ptr indices,
-	                  PointCloudC::Ptr subset_cloud, 
-                    pcl::ExtractIndices<PointC>::Ptr extract) { // changed method signature!!! add two more params
+void SegmentSurface(PointCloudC::Ptr cloud, pcl::PointIndices::Ptr indices) { 
   pcl::PointIndices indices_internal;
   pcl::SACSegmentation<PointC> seg;
   seg.setOptimizeCoefficients(true);
@@ -63,16 +61,6 @@ void SegmentSurface(PointCloudC::Ptr cloud, pcl::PointIndices::Ptr indices,
     ROS_ERROR("Unable to find surface.");
     return;
   }
-
-  // reify a point cloud from its indices
-  // Extract subset of original_cloud into subset_cloud:
-  // pcl::ExtractIndices<PointC> extract;
-  // extract.setInputCloud(cloud);
-  // extract.setIndices(indices);
-  // extract.filter(*subset_cloud);
-  extract->setInputCloud(cloud);
-  extract->setIndices(indices);
-  extract->filter(*subset_cloud);
 }
 
 void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
@@ -124,7 +112,6 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   size_t min_size = std::numeric_limits<size_t>::max();
   size_t max_size = std::numeric_limits<size_t>::min();
   for (size_t i = 0; i < object_indices->size(); ++i) {
-    // TODO: implement this
     size_t cluster_size = object_indices->at(i).indices.size();
     if (cluster_size > max_size) {
       max_size = cluster_size;
@@ -153,8 +140,11 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 
   pcl::PointIndices::Ptr table_inliers(new pcl::PointIndices());
   PointCloudC::Ptr subset_cloud(new PointCloudC);
-  pcl::ExtractIndices<PointC>::Ptr extract(new pcl::ExtractIndices<PointC>());
-  SegmentSurface(cloud, table_inliers, subset_cloud, extract);
+  pcl::ExtractIndices<PointC> extract;
+  SegmentSurface(cloud, table_inliers);
+  extract.setInputCloud(cloud);
+  extract.setIndices(table_inliers);
+  extract.filter(*subset_cloud);
 
   sensor_msgs::PointCloud2 msg_out;
   pcl::toROSMsg(*subset_cloud, msg_out);
@@ -174,24 +164,11 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
 
   // We are reusing the extract object created earlier in the callback.
   PointCloudC::Ptr cloud_out(new PointCloudC());
-  // pcl::ExtractIndices<PointC> extract;
 
-  // extract.setNegative(true);
-  // extract.filter(*cloud_out);
-  extract->setNegative(true);
-  extract->filter(*cloud_out);
+  extract.setNegative(true);
+  extract.filter(*cloud_out);
   pcl::toROSMsg(*cloud_out, msg_out);
   above_surface_pub_.publish(msg_out);
 
 }
 }  // namespace perception
-
-
-// Lab 31
-// // use indices to access planar surface
-// PointCloudC::Ptr cloud(new PointCloudC);
-// pcl::PointIndices indices;
-// for (size_t i=0; i<indices.indices.size(); ++i) {
-//   int index = indices.indices[i];
-//   const PointC& pt = cloud->points[index];
-// }
