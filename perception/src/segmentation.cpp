@@ -81,7 +81,8 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
 void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            pcl::PointIndices::Ptr surface_indices,
-                           std::vector<pcl::PointIndices>* object_indices) {
+                           std::vector<pcl::PointIndices>* object_indices,
+                           const ros::Publisher& marker_pub_p) {
   // extract the scene above the plane
   pcl::ExtractIndices<PointC> extract;
   pcl::PointIndices::Ptr above_surface_indices(new pcl::PointIndices());
@@ -106,7 +107,7 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   euclid.setMinClusterSize(min_cluster_size);
   euclid.setMaxClusterSize(max_cluster_size);
   euclid.extract(*object_indices);
-
+ 
   // Find the size of the smallest and the largest object,
   // where size = number of points in the cluster
   size_t min_size = std::numeric_limits<size_t>::max();
@@ -123,6 +124,32 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
   ROS_INFO("Found %ld objects, min size: %ld, max size: %ld",
           object_indices->size(), min_size, max_size);
+
+
+  // // draw boxes around each of the objects
+  // for (size_t i = 0; i < object_indices->size(); ++i) {
+  //   // Reify indices into a point cloud of the object.
+  //   pcl::PointIndices::Ptr indices(new pcl::PointIndices);
+  //   *indices = object_indices->at(i);
+  //   PointCloudC::Ptr object_cloud(new PointCloudC());
+  //   // TODO: fill in object_cloud using indices
+  //   // extract.setInputCloud(cloud_out);
+  //   extract.setNegative(false);
+  //   extract.setIndices(indices);
+  //   extract.filter(*object_cloud);
+
+  //   // Publish a bounding box around it.
+  //   visualization_msgs::Marker object_marker;
+  //   object_marker.ns = "objects";
+  //   object_marker.id = i;
+  //   object_marker.header.frame_id = "base_link";
+  //   object_marker.type = visualization_msgs::Marker::CUBE;
+  //   GetAxisAlignedBoundingBox(object_cloud, &object_marker.pose,
+  //                             &object_marker.scale);
+  //   object_marker.color.g = 1;
+  //   object_marker.color.a = 0.3;
+  //   marker_pub_p.publish(object_marker);
+  // }
 
 
 }
@@ -160,15 +187,39 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   marker_pub_.publish(table_marker);
 
   std::vector<pcl::PointIndices> object_indices;
-  SegmentSurfaceObjects(cloud, table_inliers, &object_indices);
+  SegmentSurfaceObjects(cloud, table_inliers, &object_indices, marker_pub_);
 
   // We are reusing the extract object created earlier in the callback.
   PointCloudC::Ptr cloud_out(new PointCloudC());
-
+  // extract.setInputCloud(subset_cloud);
   extract.setNegative(true);
   extract.filter(*cloud_out);
   pcl::toROSMsg(*cloud_out, msg_out);
   above_surface_pub_.publish(msg_out);
 
+  // draw boxes around each of the objects
+  for (size_t i = 0; i < object_indices.size(); ++i) {
+    // Reify indices into a point cloud of the object.
+    pcl::PointIndices::Ptr indices(new pcl::PointIndices);
+    *indices = object_indices[i];
+    PointCloudC::Ptr object_cloud(new PointCloudC());
+    // TODO: fill in object_cloud using indices
+    // extract.setInputCloud(cloud);
+    extract.setNegative(false);
+    extract.setIndices(indices);
+    extract.filter(*object_cloud);
+
+    // Publish a bounding box around it.
+    visualization_msgs::Marker object_marker;
+    object_marker.ns = "objects";
+    object_marker.id = i;
+    object_marker.header.frame_id = "base_link";
+    object_marker.type = visualization_msgs::Marker::CUBE;
+    GetAxisAlignedBoundingBox(object_cloud, &object_marker.pose,
+                              &object_marker.scale);
+    object_marker.color.g = 1;
+    object_marker.color.a = 0.3;
+    marker_pub_.publish(object_marker);
+  }
 }
 }  // namespace perception
