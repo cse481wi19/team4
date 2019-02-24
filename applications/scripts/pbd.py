@@ -17,7 +17,6 @@ import math
 import pickle
 from map_annotator.msg import PoseNames, UserAction
 
-bool savedBefore = False
 def wait_for_time():
   """Wait for simulated time to begin.
   """
@@ -53,9 +52,14 @@ class Server(object):
         self.sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, callback=self.reader.callback)
         self.listener = tf.TransformListener()
 
+        self.savedBefore = False
+
     # Currently only add pose relative to tag instead of base_link
     def add(self, name, tag):
         # Calculate the coordinate of wrist based on base_link frame
+        if not self.savedBefore:
+            self.reader.update()
+            self.savedBefore = True
         (position, quaternion) = self.listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
         pose = Pose()
         pose.position.x = position[0]
@@ -88,8 +92,8 @@ class Server(object):
                 self.db.add(name, offset, tag)
 
     def run(self, name):
-        reader.update()
-        savedBefore = False
+        self.reader.update()
+        self.savedBefore = False
         if self.db.get(name) is not None:
             for offset, tag in self.db.get(name):
                 if tag == 'base_link':
@@ -100,16 +104,19 @@ class Server(object):
         	        self.gripper.close()
                 else:
                     tagPs = self.reader.getTag(tag)
-                    # Get the current transform of the given tag
-                    tagMat = pose_to_transform(tagPs.pose.pose)
-                    # Compute the new coordinate based on pre-set frame
-                    newTrans = np.dot(tagMat,offset)
-                    pose = transform_to_pose(newTrans)
-                    result = PoseStamped()
-                    result.pose = pose
-                    result.header = tagPs.header
-                    # Move to the new coordinate
-                    self.arm.move_to_pose(result)
+                    if tagPose == None:
+                        print("Frame does not exist")
+                    else:
+                        # Get the current transform of the given tag
+                        tagMat = pose_to_transform(tagPs.pose.pose)
+                        # Compute the new coordinate based on pre-set frame
+                        newTrans = np.dot(tagMat,offset)
+                        pose = transform_to_pose(newTrans)
+                        result = PoseStamped()
+                        result.pose = pose
+                        result.header = tagPs.header
+                        # Move to the new coordinate
+                        self.arm.move_to_pose(result)
         else:
             print("Pose does not exist")
 
