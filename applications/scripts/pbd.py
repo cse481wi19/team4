@@ -44,10 +44,11 @@ class ArTagReader(object):
                 return result
 
 class Server(object):
-    def __init__(self, database, arm):
+    def __init__(self, database, arm, gripper):
         self.db = database
         self.db.load()
         self.arm = arm
+        self.gripper = gripper
         self.reader = ArTagReader()
         self.sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, callback=self.reader.callback)
         self.listener = tf.TransformListener()
@@ -55,9 +56,6 @@ class Server(object):
     # Currently only add pose relative to tag instead of base_link
     def add(self, name, tag):
         # Calculate the coordinate of wrist based on base_link frame
-        if not savedBefore:
-            reader.update()
-            savedBefore = True
         (position, quaternion) = self.listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
         pose = Pose()
         pose.position.x = position[0]
@@ -73,6 +71,10 @@ class Server(object):
             ps.pose = pose
             ps.header.frame_id = 'base_link'
             self.db.add(name, ps, tag)
+        elif tag == 'open':
+        	self.db.add(name, None, tag)
+        elif tag == 'close':
+        	self.db.add(name, None, tag)
         else:
             # Get the coordinate of tag and compute the offset between tag and wrist
             tagPose = self.reader.getTag(tag)
@@ -92,6 +94,10 @@ class Server(object):
             for offset, tag in self.db.get(name):
                 if tag == 'base_link':
                     self.arm.move_to_pose(offset)
+                elif tag == 'open':
+        	        self.gripper.open()
+                elif tag == 'close':
+        	        self.gripper.close()
                 else:
                     tagPs = self.reader.getTag(tag)
                     # Get the current transform of the given tag
@@ -172,7 +178,7 @@ def main():
     def print_help():
         print("Commands:")
         print("\tlist: List saved poses.")
-        print("\tsave <name> <frame_id>: Save the robot's current pose as <name>.")
+        print("\tsave <name> <frame_id/gripper_status> : Save the robot's current pose as <name>")
         print("\tdelete <name>: Delete the pose given by <name>.")
         print("\trun <name>: Run the pose given by <name>.")
         print("\trelax: Relax the arm")
@@ -184,7 +190,7 @@ def main():
     gripper = robot_api.Gripper()
     arm = robot_api.Arm()
     database = Database()
-    server = Server(database, arm)
+    server = Server(database, arm, gripper)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
     
@@ -205,7 +211,7 @@ def main():
                 print("No name given")
             l = command[5:].split()
             if len(l) != 2:
-                print("Argument format: <Pose> <Tag>") 
+                print("Argument format: <Pose> <frame_id/gripper_status>") 
             else:
                 server.add(l[0], l[1])
 
