@@ -16,6 +16,10 @@
 #include "perception/downsample.h"
 #include "pcl/filters/voxel_grid.h"
 
+#include "geometry_msgs/Pose.h"
+#include "simple_grasping/shape_extraction.h"
+#include "shape_msgs/SolidPrimitive.h"
+
 #include <math.h>
 #include <sstream>
 
@@ -24,8 +28,11 @@ typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
 namespace perception {
 void SegmentSurface(PointCloudC::Ptr cloud, 
-                    pcl::PointIndices::Ptr indices,
-                    pcl::ModelCoefficients::Ptr coeff) { 
+                    pcl::PointIndices::Ptr indices) {
+// lab 33
+// void SegmentSurface(PointCloudC::Ptr cloud, 
+//                     pcl::PointIndices::Ptr indices,
+//                     pcl::ModelCoefficients::Ptr coeff) { 
   pcl::PointIndices indices_internal;
   pcl::SACSegmentation<PointC> seg;
   seg.setOptimizeCoefficients(true);
@@ -167,20 +174,20 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
 
-  // down size
-  PointCloudC::Ptr downsampled_cloud(new PointCloudC());
-  pcl::VoxelGrid<PointC> vox;
-  vox.setInputCloud(cloud);
-  double voxel_size;
-  ros::param::param("voxel_size", voxel_size, 0.01);
-  vox.setLeafSize(voxel_size, voxel_size, voxel_size);
-  vox.filter(*downsampled_cloud);
+  // // down size
+  // PointCloudC::Ptr downsampled_cloud(new PointCloudC());
+  // pcl::VoxelGrid<PointC> vox;
+  // vox.setInputCloud(cloud);
+  // double voxel_size;
+  // ros::param::param("voxel_size", voxel_size, 0.01);
+  // vox.setLeafSize(voxel_size, voxel_size, voxel_size);
+  // vox.filter(*downsampled_cloud);
 
   pcl::PointIndices::Ptr table_inliers(new pcl::PointIndices());
   PointCloudC::Ptr subset_cloud(new PointCloudC);
   pcl::ExtractIndices<PointC> extract;
-  SegmentSurface(downsampled_cloud, table_inliers);
-  extract.setInputCloud(downsampled_cloud);
+  SegmentSurface(cloud, table_inliers);
+  extract.setInputCloud(cloud);
   extract.setIndices(table_inliers);
   extract.filter(*subset_cloud);
 
@@ -193,16 +200,23 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   table_marker.header.frame_id = "base_link";
   table_marker.type = visualization_msgs::Marker::CUBE;
   GetAxisAlignedBoundingBox(subset_cloud, &table_marker.pose, &table_marker.scale);
+
+  // lab 33
+  // PointCloudC::Ptr extract_out(new PointCloudC());
+  // shape_msgs::SolidPrimitive shape;
+  // geometry_msgs::Pose table_pose;
+  // simple_grasping::extractShape(*cloud_out, coeff, *extract_out, shape,
+  //                               table_pose);
+
   table_marker.color.r = 1;
   table_marker.color.a = 0.8;
   marker_pub_.publish(table_marker);
 
   std::vector<pcl::PointIndices> object_indices;
-  SegmentSurfaceObjects(downsampled_cloud, table_inliers, &object_indices, marker_pub_);
+  SegmentSurfaceObjects(cloud, table_inliers, &object_indices, marker_pub_);
 
   // We are reusing the extract object created earlier in the callback.
   PointCloudC::Ptr cloud_out(new PointCloudC());
-  // extract.setInputCloud(subset_cloud);
   extract.setNegative(true);
   extract.filter(*cloud_out);
   pcl::toROSMsg(*cloud_out, msg_out);

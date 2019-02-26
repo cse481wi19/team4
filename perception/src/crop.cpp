@@ -14,7 +14,7 @@ Cropper::Cropper(const ros::Publisher& pub) : pub_(pub) {}
 void Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
-  ROS_INFO("Got point cloud with %ld points", cloud->size());
+  // ROS_INFO("Got point cloud with %ld points", cloud->size());
 
   PointCloudC::Ptr cropped_cloud(new PointCloudC());
   double min_x, min_y, min_z, max_x, max_y, max_z;
@@ -31,7 +31,7 @@ void Cropper::Callback(const sensor_msgs::PointCloud2& msg) {
   crop.setMin(min_pt);
   crop.setMax(max_pt);
   crop.filter(*cropped_cloud);
-  ROS_INFO("Cropped to %ld points", cropped_cloud->size());
+  // ROS_INFO("Cropped to %ld points", cropped_cloud->size());
   sensor_msgs::PointCloud2 msg_out;
   pcl::toROSMsg(*cropped_cloud, msg_out);
   pub_.publish(msg_out);

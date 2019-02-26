@@ -104,7 +104,7 @@ class Server(object):
         	        self.gripper.close()
                 else:
                     tagPs = self.reader.getTag(tag)
-                    if tagPose == None:
+                    if tagPs == None:
                         print("Frame does not exist")
                     else:
                         # Get the current transform of the given tag
