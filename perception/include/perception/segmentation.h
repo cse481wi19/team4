@@ -5,6 +5,7 @@
 #include "sensor_msgs/PointCloud2.h"
 
 #include "pcl/filters/extract_indices.h"
+#include "pcl/ModelCoefficients.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Vector3.h"
 
@@ -16,12 +17,13 @@ namespace perception {
 //  cloud: The point cloud to extract a surface from.
 //  indices: The indices of points in the point cloud that correspond to the
 //    surface. Empty if no surface was found.
-void SegmentSurface(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                    pcl::PointIndices::Ptr indices);
-// lab 33
 // void SegmentSurface(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-//                     pcl::PointIndices::Ptr indices, 
-//                     pcl::ModelCoefficients::Ptr coeff);
+//                     pcl::PointIndices::Ptr indices);
+
+// lab 33
+void SegmentSurface(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                    pcl::PointIndices::Ptr indices, 
+                    pcl::ModelCoefficients::Ptr coeff);
 
 // Computes the axis-aligned bounding box of a point cloud.
 //
@@ -37,7 +39,8 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            pcl::PointIndices::Ptr surface_indices,
                            std::vector<pcl::PointIndices>* object_indices,
-                           const ros::Publisher& marker_pub_p);
+                           const ros::Publisher& marker_pub_p,
+                           pcl::ModelCoefficients::Ptr coeff);
 
 class Segmenter {
  public:

@@ -197,6 +197,7 @@ def main():
     gripper = robot_api.Gripper()
     arm = robot_api.Arm()
     database = Database()
+    # facedetector = robot_api.FaceDetector()
     server = Server(database, arm, gripper)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
@@ -248,6 +249,20 @@ def main():
 
         elif command[:4] == "help":
             print_help()
+
+        elif command[:4] == "move":
+            if len(command[5:]) == 0:
+                print("No coordinate given")
+            l = command[5:].split()
+            if len(l) != 3:
+                print("Argument format: move x y z") 
+            else:
+                ps = PoseStamped()
+                ps.pose.position.x = float(l[0])
+                ps.pose.position.y = float(l[1])
+                ps.pose.position.z = float(l[2])
+                ps.header.frame_id = 'base_link'
+                arm.move_to_pose(ps)
 
         elif command[:5] == "relax":
             goal = QueryControllerStatesGoal()

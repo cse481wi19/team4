@@ -50,6 +50,7 @@ def main():
     rospy.init_node('web_teleop_actuators')
     wait_for_time()
     server = ActuatorServer()
+    rospy.loginfo("s")
     torso_service = rospy.Service('web_teleop/set_torso', SetTorso,
                                   server.handle_set_torso)
     open_gripper_service = rospy.Service('web_teleop/open_gripper', OpenGripper, server.open_gripper)
