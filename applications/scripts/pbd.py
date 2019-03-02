@@ -188,6 +188,8 @@ def main():
         print("\tsave <name> <frame_id/gripper_status> : Save the robot's current pose as <name>")
         print("\tdelete <name>: Delete the pose given by <name>.")
         print("\trun <name>: Run the pose given by <name>.")
+        print("\tmove <x> <y> <z> / face: Move the arm to the xyz position or face")
+        print("\treset: This is to reset the ARM to 0.5 0.5 0.75, NOT THE ROBOT!")
         print("\trelax: Relax the arm")
         print("\tclose: Close the gripper")
         print("\topen: Open the gripper")
@@ -197,7 +199,7 @@ def main():
     gripper = robot_api.Gripper()
     arm = robot_api.Arm()
     database = Database()
-    # facedetector = robot_api.FaceDetector()
+    facedetector = robot_api.FaceDetector()
     server = Server(database, arm, gripper)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
@@ -250,19 +252,32 @@ def main():
         elif command[:4] == "help":
             print_help()
 
+        elif command[:5] == "reset":
+            ps = PoseStamped()
+            ps.pose.position.x = 0.5
+            ps.pose.position.y = 0.5
+            ps.pose.position.z = 0.75
+            ps.header.frame_id = 'base_link'
+            arm.move_to_pose(ps)
+
         elif command[:4] == "move":
             if len(command[5:]) == 0:
                 print("No coordinate given")
             l = command[5:].split()
-            if len(l) != 3:
-                print("Argument format: move x y z") 
-            else:
+            if len(l) != 3 and (len(l) == 1 and l[0] != "face"):
+                print("Argument format: move x y z or move face") 
+            elif len(l) == 3:
                 ps = PoseStamped()
                 ps.pose.position.x = float(l[0])
                 ps.pose.position.y = float(l[1])
                 ps.pose.position.z = float(l[2])
                 ps.header.frame_id = 'base_link'
                 arm.move_to_pose(ps)
+            else:
+                if facedetector.pose is not None:
+                    arm.move_to_pose(facedetector.pose)
+                else:
+                    print("No face is detected.")
 
         elif command[:5] == "relax":
             goal = QueryControllerStatesGoal()

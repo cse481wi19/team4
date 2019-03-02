@@ -4,10 +4,13 @@
 #include "ros/ros.h"
 #include "sensor_msgs/PointCloud2.h"
 
+#include <vector>
+
 #include "pcl/filters/extract_indices.h"
 #include "pcl/ModelCoefficients.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Vector3.h"
+#include "perception/object.h"
 
 namespace perception {
 // Finds the largest horizontal surface in the given point cloud.
@@ -41,6 +44,16 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            std::vector<pcl::PointIndices>* object_indices,
                            const ros::Publisher& marker_pub_p,
                            pcl::ModelCoefficients::Ptr coeff);
+
+// Does a complete tabletop segmentation pipeline.
+//
+// Args:
+//  cloud: The point cloud with the surface and the objects above it.
+//  objects: The output objects.
+void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          const ros::Publisher& marker_pub_p,
+                          const ros::Publisher& surface_points_pub,
+                          const ros::Publisher& above_surface_pub);
 
 class Segmenter {
  public:

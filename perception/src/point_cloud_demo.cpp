@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
   perception::Segmenter segmenter(table_pub, marker_pub, above_surface_pub);
   
   ros::Subscriber sub =
-      nh.subscribe("downsampled_cloud", 1, &perception::Segmenter::Callback, &segmenter);
+      nh.subscribe("cropped_cloud", 1, &perception::Segmenter::Callback, &segmenter);
 
 
   ros::spin();
