@@ -112,8 +112,8 @@ catkin_package(
   	perception_crop
   	perception_downsample
   	perception_segmentation
-        perception_box_fitter
-        perception_feature_extraction
+    perception_box_fitter
+    perception_feature_extraction
 #  LIBRARIES perception
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
@@ -191,6 +191,7 @@ target_link_libraries(perception_point_cloud_demo
 target_link_libraries(perception_extract_features_main
   perception_segmentation
   perception_feature_extraction
+  perception_box_fitter
   ${catkin_LIBRARIES}
 )
 target_link_libraries(perception_crop ${catkin_LIBRARIES})
