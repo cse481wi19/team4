@@ -43,7 +43,7 @@ class ArTagReader(object):
                 return result
 
 class Server(object):
-    def __init__(self, database, arm, gripper):
+    def __init__(self, database, arm, gripper, facedetector):
         self.db = database
         self.db.load()
         self.arm = arm
@@ -51,7 +51,7 @@ class Server(object):
         self.reader = ArTagReader()
         self.sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, callback=self.reader.callback)
         self.listener = tf.TransformListener()
-
+        self.facedetector = facedetector
         self.savedBefore = False
 
     # Currently only add pose relative to tag instead of base_link
@@ -75,9 +75,7 @@ class Server(object):
             ps.pose = pose
             ps.header.frame_id = 'base_link'
             self.db.add(name, ps, tag)
-        elif tag == 'open':
-        	self.db.add(name, None, tag)
-        elif tag == 'close':
+        elif tag == 'open' or tag == 'close' or tag == 'face':
         	self.db.add(name, None, tag)
         else:
             # Get the coordinate of tag and compute the offset between tag and wrist
@@ -102,6 +100,11 @@ class Server(object):
         	        self.gripper.open()
                 elif tag == 'close':
         	        self.gripper.close()
+                elif tag == 'face':
+                    if self.facedetector.pose is not None:
+                        self.arm.move_to_pose(self.facedetector.pose)
+                    else:
+                        print("No face is detected.")
                 else:
                     tagPs = self.reader.getTag(tag)
                     if tagPs == None:
@@ -200,7 +203,7 @@ def main():
     arm = robot_api.Arm()
     database = Database()
     facedetector = robot_api.FaceDetector()
-    server = Server(database, arm, gripper)
+    server = Server(database, arm, gripper, facedetector)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
     

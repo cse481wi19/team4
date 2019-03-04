@@ -203,6 +203,7 @@ class GripperTeleop(object):
         ps = PoseStamped()
         ps.header = gripper_im.header
         ps.pose = gripper_im.pose
+        rospy.loginfo(gripper_im.pose)
 
         if feedback.event_type == InteractiveMarkerFeedback.MENU_SELECT:
             if feedback.menu_entry_id == 1:

@@ -64,9 +64,9 @@ class FaceDetector(object):
             ps.pose.position.x += pose.position.x
             ps.pose.position.y += pose.position.y
             ps.pose.position.z += pose.position.z
-            ps.pose.position.x -= 0.5
-            ps.pose.position.y -= 0.1
-            ps.pose.position.z -= 0.05
+            ps.pose.position.x -= 0.35
+            ps.pose.position.y -= 0
+            ps.pose.position.z -= 0.15
 
             ps.pose.orientation.x = 0
             ps.pose.orientation.y = 0
