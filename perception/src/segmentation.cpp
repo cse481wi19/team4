@@ -29,6 +29,7 @@ typedef pcl::PointXYZRGB PointC;
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
 namespace perception {
+
 // void SegmentSurface(PointCloudC::Ptr cloud, 
 //                     pcl::PointIndices::Ptr indices) {
 // lab 33
@@ -167,6 +168,7 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 }
 
 void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
+                          std::vector<Object>* objects,
                           const ros::Publisher& marker_pub_p,
                           const ros::Publisher& surface_points_pub,
                           const ros::Publisher& above_surface_pub) {
@@ -181,7 +183,9 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
   sensor_msgs::PointCloud2 msg_out;
   pcl::toROSMsg(*subset_cloud, msg_out);
-  surface_points_pub.publish(msg_out);
+  if (&surface_points_pub != &NULL_P) {
+    surface_points_pub.publish(msg_out);
+  }
 
   std::vector<pcl::PointIndices> object_indices;
   SegmentSurfaceObjects(cloud, table_inliers, &object_indices, marker_pub_p, coeff);
@@ -190,7 +194,9 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
   extract.setNegative(true);
   extract.filter(*cloud_out);
   pcl::toROSMsg(*cloud_out, msg_out);
-  above_surface_pub.publish(msg_out);
+  if (&above_surface_pub != &NULL_P) {
+    above_surface_pub.publish(msg_out);
+  }
 
   // extract.setNegative(true); // new
   extract.filter(*subset_cloud); // new
@@ -219,17 +225,21 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     object_i->dimensions.y = shape.dimensions[1];
     object_i->dimensions.z = shape.dimensions[2];
 
-    // Publish a bounding box around it.
-    visualization_msgs::Marker object_marker;
-    object_marker.ns = "objects";
-    object_marker.id = i;
-    object_marker.header.frame_id = "base_link";
-    object_marker.type = visualization_msgs::Marker::CUBE;
-    object_marker.pose = object_i->pose;
-    object_marker.scale = object_i->dimensions;
-    object_marker.color.g = 1;
-    object_marker.color.a = 0.3;
-    marker_pub_p.publish(object_marker);
+    objects->push_back(*object_i);
+
+    if (&marker_pub_p != &NULL_P) {
+      // Publish a bounding box around it.
+      visualization_msgs::Marker object_marker;
+      object_marker.ns = "objects";
+      object_marker.id = i;
+      object_marker.header.frame_id = "base_link";
+      object_marker.type = visualization_msgs::Marker::CUBE;
+      object_marker.pose = object_i->pose;
+      object_marker.scale = object_i->dimensions;
+      object_marker.color.g = 1;
+      object_marker.color.a = 0.3;
+      marker_pub_p.publish(object_marker);
+    }
   }
 
   // for (size_t i = 0; i < objects.size(); ++i) {
@@ -327,6 +337,7 @@ void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
   pcl::removeNaNFromPointCloud(*cloud_unfiltered, *cloud, index);
 
   // std::vector<Object> objects;
-  SegmentTabletopScene(cloud, marker_pub_, surface_points_pub_, above_surface_pub_);
+  std::vector<Object> objects;
+  SegmentTabletopScene(cloud, &objects, marker_pub_, surface_points_pub_, above_surface_pub_);
 }
 }  // namespace perception

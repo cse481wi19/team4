@@ -13,6 +13,9 @@
 #include "perception/object.h"
 
 namespace perception {
+
+  const ros::Publisher NULL_P;
+
 // Finds the largest horizontal surface in the given point cloud.
 // This is useful for adding a collision object to MoveIt.
 //
@@ -51,9 +54,10 @@ void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 //  cloud: The point cloud with the surface and the objects above it.
 //  objects: The output objects.
 void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
-                          const ros::Publisher& marker_pub_p,
-                          const ros::Publisher& surface_points_pub,
-                          const ros::Publisher& above_surface_pub);
+                          std::vector<Object>* objects,
+                          const ros::Publisher& marker_pub_p = NULL_P,
+                          const ros::Publisher& surface_points_pub = NULL_P,
+                          const ros::Publisher& above_surface_pub = NULL_P);
 
 class Segmenter {
  public:

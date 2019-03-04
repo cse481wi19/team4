@@ -14,8 +14,12 @@
 #include "perception/feature_extraction.h"
 #include "perception/object.h"
 #include "perception/segmentation.h"
+#include "perception/box_fitter.h"
+#include "shape_msgs/SolidPrimitive.h"
 #include "perception/typedefs.h"
 #include "perception_msgs/ObjectFeatures.h"
+#include "geometry_msgs/Pose.h"
+
 
 void Crop(PointCloudC::Ptr cloud_in, PointCloudC::Ptr cloud_out) {
   double min_x, min_y, min_z, max_x, max_y, max_z;
