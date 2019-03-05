@@ -45,7 +45,6 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            pcl::PointIndices::Ptr surface_indices,
                            std::vector<pcl::PointIndices>* object_indices,
-                           const ros::Publisher& marker_pub_p,
                            pcl::ModelCoefficients::Ptr coeff);
 
 // Does a complete tabletop segmentation pipeline.

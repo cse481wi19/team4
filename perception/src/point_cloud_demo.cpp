@@ -18,12 +18,12 @@ int main(int argc, char** argv) {
   ros::Subscriber crop_sub =
       nh.subscribe("cloud_in", 1, &perception::Cropper::Callback, &cropper);
 
-  ros::NodeHandle nh_down;
-  ros::Publisher down_pub =
-      nh.advertise<sensor_msgs::PointCloud2>("downsampled_cloud", 1, true);
-  perception::Downsampler downsampler(down_pub);
-  ros::Subscriber down_sub =
-      nh.subscribe("cropped_cloud", 1, &perception::Downsampler::Callback, &downsampler);
+//   ros::NodeHandle nh_down;
+//   ros::Publisher down_pub =
+//       nh.advertise<sensor_msgs::PointCloud2>("downsampled_cloud", 1, true);
+//   perception::Downsampler downsampler(down_pub);
+//   ros::Subscriber down_sub =
+//       nh.subscribe("cropped_cloud", 1, &perception::Downsampler::Callback, &downsampler);
 
   ros::Publisher marker_pub =
       nh.advertise<visualization_msgs::Marker>("visualization_marker", 1, true);

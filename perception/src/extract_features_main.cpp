@@ -20,7 +20,6 @@
 #include "perception_msgs/ObjectFeatures.h"
 #include "geometry_msgs/Pose.h"
 
-
 void Crop(PointCloudC::Ptr cloud_in, PointCloudC::Ptr cloud_out) {
   double min_x, min_y, min_z, max_x, max_y, max_z;
   ros::param::param("crop_min_x", min_x, 0.3);
@@ -93,6 +92,7 @@ int main(int argc, char** argv) {
   rosbag::Bag bag_out;
   bag_out.open(label + "_label.bag", rosbag::bagmode::Write);
   bag_out.write("object_features", ros::Time::now(), features);
+
   bag_out.close();
 
   return 0;

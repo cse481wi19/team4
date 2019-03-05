@@ -96,7 +96,6 @@ void GetAxisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 void SegmentSurfaceObjects(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                            pcl::PointIndices::Ptr surface_indices,
                            std::vector<pcl::PointIndices>* object_indices,
-                           const ros::Publisher& marker_pub_p,
                            pcl::ModelCoefficients::Ptr coeff) {
   // extract the scene above the plane
   pcl::ExtractIndices<PointC> extract;
@@ -183,18 +182,18 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
   sensor_msgs::PointCloud2 msg_out;
   pcl::toROSMsg(*subset_cloud, msg_out);
-  if (&surface_points_pub != &NULL_P) {
+  if (surface_points_pub != NULL_P) {
     surface_points_pub.publish(msg_out);
   }
 
   std::vector<pcl::PointIndices> object_indices;
-  SegmentSurfaceObjects(cloud, table_inliers, &object_indices, marker_pub_p, coeff);
+  SegmentSurfaceObjects(cloud, table_inliers, &object_indices, coeff);
   // We are reusing the extract object created earlier in the callback.
   PointCloudC::Ptr cloud_out(new PointCloudC());
   extract.setNegative(true);
   extract.filter(*cloud_out);
   pcl::toROSMsg(*cloud_out, msg_out);
-  if (&above_surface_pub != &NULL_P) {
+  if (above_surface_pub != NULL_P) {
     above_surface_pub.publish(msg_out);
   }
 
@@ -227,7 +226,7 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 
     objects->push_back(*object_i);
 
-    if (&marker_pub_p != &NULL_P) {
+    if (marker_pub_p != NULL_P) {
       // Publish a bounding box around it.
       visualization_msgs::Marker object_marker;
       object_marker.ns = "objects";
