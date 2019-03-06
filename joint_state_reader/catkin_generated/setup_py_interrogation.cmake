@@ -1,0 +1,6 @@
+set(joint_state_reader_SETUP_PY_VERSION "0.0.0")
+set(joint_state_reader_SETUP_PY_SCRIPTS "")
+set(joint_state_reader_SETUP_PY_PACKAGES "joint_state_reader")
+set(joint_state_reader_SETUP_PY_PACKAGE_DIRS "src/joint_state_reader")
+set(joint_state_reader_SETUP_PY_MODULES "")
+set(joint_state_reader_SETUP_PY_MODULE_DIRS "")

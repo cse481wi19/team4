@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: joint_state_reader
+Description: Description of joint_state_reader
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

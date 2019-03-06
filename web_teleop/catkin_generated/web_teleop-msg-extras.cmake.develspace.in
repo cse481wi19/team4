@@ -1,0 +1,2 @@
+set(web_teleop_MESSAGE_FILES "")
+set(web_teleop_SERVICE_FILES "/home/team4/catkin_ws/src/cse481wi19/web_teleop/srv/SetTorso.srv;/home/team4/catkin_ws/src/cse481wi19/web_teleop/srv/CloseGripper.srv;/home/team4/catkin_ws/src/cse481wi19/web_teleop/srv/OpenGripper.srv;/home/team4/catkin_ws/src/cse481wi19/web_teleop/srv/SetArm.srv;/home/team4/catkin_ws/src/cse481wi19/web_teleop/srv/MoveHead.srv")

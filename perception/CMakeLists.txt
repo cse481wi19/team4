@@ -189,6 +189,7 @@ target_link_libraries(perception_point_cloud_demo
   perception_downsample
   perception_segmentation
   perception_box_fitter
+  perception_object_recognizer
   ${catkin_LIBRARIES}
 )
 target_link_libraries(perception_extract_features_main
@@ -199,10 +200,18 @@ target_link_libraries(perception_extract_features_main
 )
 target_link_libraries(perception_crop ${catkin_LIBRARIES})
 target_link_libraries(perception_downsample ${catkin_LIBRARIES})
-target_link_libraries(perception_segmentation ${catkin_LIBRARIES})
+target_link_libraries(perception_segmentation
+  perception_box_fitter
+  perception_feature_extraction
+  perception_object_recognizer
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(perception_box_fitter ${catkin_LIBRARIES})
 target_link_libraries(perception_feature_extraction ${catkin_LIBRARIES})
-target_link_libraries(perception_object_recognizer ${catkin_LIBRARIES})
+target_link_libraries(perception_object_recognizer
+  perception_feature_extraction
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

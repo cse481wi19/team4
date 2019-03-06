@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: collada_web_server
+Description: Description of collada_web_server
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

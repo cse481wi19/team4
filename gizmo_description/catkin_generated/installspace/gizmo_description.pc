@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: gizmo_description
+Description: Description of gizmo_description
+Version: 14.3.1
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

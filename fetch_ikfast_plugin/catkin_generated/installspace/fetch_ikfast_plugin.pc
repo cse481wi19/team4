@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: fetch_ikfast_plugin
+Description: Description of fetch_ikfast_plugin
+Version: 0.7.14
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: moveit_core pluginlib roscpp tf_conversions

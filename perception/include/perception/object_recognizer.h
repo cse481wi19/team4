@@ -10,11 +10,13 @@
 #include "perception_msgs/ObjectFeatures.h"
 
 namespace perception {
+
 void LoadData(const std::string& data_dir,
               std::vector<perception_msgs::ObjectFeatures>* dataset);
 
 class ObjectRecognizer {
  public:
+  ObjectRecognizer() {}
   explicit ObjectRecognizer(
       const std::vector<perception_msgs::ObjectFeatures>& dataset);
   void Recognize(const Object& object, std::string* name, double* confidence);

@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: robot_api
+Description: Description of robot_api
+Version: 0.1.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: roscpp rospy

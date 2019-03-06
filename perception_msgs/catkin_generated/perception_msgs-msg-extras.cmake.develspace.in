@@ -1,0 +1,2 @@
+set(perception_msgs_MESSAGE_FILES "/home/team4/catkin_ws/src/cse481wi19/perception_msgs/msg/ObjectFeatures.msg")
+set(perception_msgs_SERVICE_FILES "")
