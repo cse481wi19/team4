@@ -197,6 +197,7 @@ def main():
         print("\tclose: Close the gripper")
         print("\topen: Open the gripper")
         print("\tquit: Quit the program")
+        print("\tdump: Dump the cached databsae to local file")
         print("\thelp: List all commands")
 
     gripper = robot_api.Gripper()
@@ -303,6 +304,9 @@ def main():
         elif command == 'quit':
             database.save()
             quit()
+
+        elif command == 'dump':
+            database.save()
 
         else:
             print("Invalid command, please re-enter :)")
