@@ -57,7 +57,7 @@ void ObjectRecognizer::Recognize(const Object& object, std::string* name,
                                  double* confidence) {
   // extract features from the object
   perception_msgs::ObjectFeatures object_features;
-  ExtractSizeFeatures(object, &object_features);
+  ExtractFeatures(object, &object_features);
 
   double min_distance = std::numeric_limits<double>::max();
   double second_min_distance = std::numeric_limits<double>::max();
