@@ -235,6 +235,12 @@ void SegmentTabletopScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
         name_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
         name_marker.pose.position = object_i->pose.position;
         name_marker.pose.position.z += 0.1;
+
+        std::cerr << "object name" << ss.str() << std::endl;
+        ROS_INFO("object position:\nx: %f, y: %f, z: %f",
+          object_i->pose.position.x, object_i->pose.position.y, object_i->pose.position.z);
+
+        
         name_marker.pose.orientation.w = 1;
         name_marker.scale.x = 0.025;
         name_marker.scale.y = 0.025;

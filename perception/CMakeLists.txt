@@ -112,6 +112,7 @@ catkin_package(
   	perception_crop
   	perception_downsample
   	perception_segmentation
+    perception_foodSegmentation
     	perception_box_fitter
     	perception_feature_extraction
 	perception_object_recognizer
@@ -138,6 +139,7 @@ include_directories(
 add_library(perception_crop src/crop.cpp)
 add_library(perception_downsample src/downsample.cpp)
 add_library(perception_segmentation src/segmentation.cpp)
+add_library(perception_foodSegmentation src/foodSegmentation.cpp)
 add_library(perception_box_fitter src/box_fitter.cpp)
 add_library(perception_feature_extraction src/feature_extraction.cpp)
 add_library(perception_object_recognizer src/object_recognizer.cpp)
@@ -149,6 +151,7 @@ add_library(perception_object_recognizer src/object_recognizer.cpp)
 add_executable(perception_save_cloud_main src/save_cloud_main.cpp)
 add_executable(perception_point_cloud_demo src/point_cloud_demo.cpp)
 add_executable(perception_extract_features_main src/extract_features_main.cpp)
+add_executable(perception_food_detection src/food_detection.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,6 +161,7 @@ add_executable(perception_extract_features_main src/extract_features_main.cpp)
 set_target_properties(perception_save_cloud_main PROPERTIES OUTPUT_NAME save_cloud PREFIX "")
 set_target_properties(perception_point_cloud_demo PROPERTIES OUTPUT_NAME point_cloud_demo PREFIX "")
 set_target_properties(perception_extract_features_main PROPERTIES OUTPUT_NAME extract_features_main PREFIX "")
+set_target_properties(perception_food_detection PROPERTIES OUTPUT_NAME food_detection PREFIX "")
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -166,6 +170,7 @@ set_target_properties(perception_extract_features_main PROPERTIES OUTPUT_NAME ex
 add_dependencies(perception_crop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_downsample ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_segmentation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_foodSegmentation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_box_fitter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_feature_extraction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_object_recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -176,6 +181,7 @@ add_dependencies(perception_object_recognizer ${${PROJECT_NAME}_EXPORTED_TARGETS
 add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_point_cloud_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(perception_extract_features_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(perception_food_detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -192,6 +198,14 @@ target_link_libraries(perception_point_cloud_demo
   perception_object_recognizer
   ${catkin_LIBRARIES}
 )
+target_link_libraries(perception_food_detection
+  perception_crop
+  perception_downsample
+  perception_foodSegmentation
+  perception_box_fitter
+  perception_object_recognizer
+  ${catkin_LIBRARIES}
+)
 target_link_libraries(perception_extract_features_main
   perception_segmentation
   perception_feature_extraction
@@ -201,6 +215,12 @@ target_link_libraries(perception_extract_features_main
 target_link_libraries(perception_crop ${catkin_LIBRARIES})
 target_link_libraries(perception_downsample ${catkin_LIBRARIES})
 target_link_libraries(perception_segmentation
+  perception_box_fitter
+  perception_feature_extraction
+  perception_object_recognizer
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(perception_foodSegmentation
   perception_box_fitter
   perception_feature_extraction
   perception_object_recognizer
