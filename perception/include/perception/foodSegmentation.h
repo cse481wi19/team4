@@ -16,10 +16,10 @@
 
 namespace perception_food {
 
-static float OBJ_X_MIN = 0.2;
-static float OBJ_X_MAX = 0.3;
+static float OBJ_X_MIN = 0.15;
+static float OBJ_X_MAX = 0.25;
 static float OBJ_Y_MIN = 0.15;
-static float OBJ_Y_MAX = 0.25;
+static float OBJ_Y_MAX = 0.30;
 static float OBJ_Z_MIN = 0.05;
 static float OBJ_Z_MAX = 0.1;
 
@@ -37,7 +37,7 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                     const ros::Publisher& food_pub,
                     perception::ObjectRecognizer& recognizer);
 
-bool checkRange(float x, float y, float z);
+bool checkRange(const float x, const float y, const float z);
 
 class FoodDetector {
  public:

@@ -9,5 +9,6 @@ class Cropper {
 
  private:
   ros::Publisher pub_;
+  int count_;
 };
 }  // namespace perception

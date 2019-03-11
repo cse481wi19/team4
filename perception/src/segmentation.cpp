@@ -45,7 +45,7 @@ void SegmentSurface(PointCloudC::Ptr cloud,
   seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
   seg.setMethodType(pcl::SAC_RANSAC);
   // Set the distance to the plane for a point to be an inlier.
-  seg.setDistanceThreshold(0.1); // 0.01
+  seg.setDistanceThreshold(0.03); // 0.01
   seg.setInputCloud(cloud);
 
   // Make sure that the plane is perpendicular to Z-axis, 10 degree tolerance.
@@ -57,7 +57,7 @@ void SegmentSurface(PointCloudC::Ptr cloud,
   // coeff contains the coefficients of the plane:
   // ax + by + cz + d = 0
   seg.segment(indices_internal, *coeff);
-
+  std::cerr << *coeff << std::endl;
   double distance_above_plane;
   ros::param::param("distance_above_plane", distance_above_plane, 0.005);
 
@@ -71,7 +71,7 @@ void SegmentSurface(PointCloudC::Ptr cloud,
     }
   }
 
-  *indices = indices_internal;
+  // *indices = indices_internal;
   if (indices->indices.size() == 0) {
     ROS_ERROR("Unable to find surface.");
     return;
