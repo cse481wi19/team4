@@ -45,7 +45,7 @@ void SegmentSurface(PointCloudC::Ptr cloud,
   seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
   seg.setMethodType(pcl::SAC_RANSAC);
   // Set the distance to the plane for a point to be an inlier.
-  seg.setDistanceThreshold(0.02); // 0.01
+  seg.setDistanceThreshold(0.1); // 0.01
   seg.setInputCloud(cloud);
 
   // Make sure that the plane is perpendicular to Z-axis, 10 degree tolerance.

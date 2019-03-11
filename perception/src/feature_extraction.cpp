@@ -11,13 +11,6 @@ void ExtractSizeFeatures(const Object& object,
                          perception_msgs::ObjectFeatures* features) {
   // "x" dimension is always the smallest of x and y to account for rotations.
   // z always points up.
-
-  // features->names.push_back("box_dim_x");
-  // features->values.push_back(std::min(object.dimensions.x, object.dimensions.y));
-  // features->names.push_back("box_dim_y");
-  // features->values.push_back(std::max(object.dimensions.x, object.dimensions.y));
-  // features->names.push_back("box_dim_z");
-  // features->values.push_back(object.dimensions.z);
   double weight;
   ros::param::param("size_weight", weight, 2.0);
   // "x" dimension is always the smallest of x and y to account for rotations.

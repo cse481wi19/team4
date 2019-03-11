@@ -9,10 +9,11 @@
 
 #include "perception/object_recognizer.h"
 #include "perception_msgs/ObjectFeatures.h"
+#include "perception_msgs/ObjectPosition.h"
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    ROS_INFO("Usage: rosrun perception point_cloud_demo DATA_DIR");
+    ROS_INFO("Usage: rosrun perception food_detection DATA_DIR");
     ros::spinOnce();
   }
   std::string data_dir(argv[1]);
@@ -33,7 +34,7 @@ int main(int argc, char** argv) {
   ros::Publisher above_surface_pub = 
       nh.advertise<sensor_msgs::PointCloud2>("above_surface_pub", 1, true);
   ros::Publisher food_pub = 
-      nh.advertise<sensor_msgs::PointCloud2>("food_pub", 1, true);
+      nh.advertise<perception_msgs::ObjectPosition>("food_pub", 1, true);
 
   std::vector<perception_msgs::ObjectFeatures> dataset;
   perception::LoadData(data_dir, &dataset);

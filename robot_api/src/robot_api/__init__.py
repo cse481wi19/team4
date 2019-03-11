@@ -8,3 +8,4 @@ from .face_detector import FaceDetector
 from .moveit_goal_builder import MoveItGoalBuilder
 from .pbd_manager import Manager
 from .database import Database
+from .food_detector import FoodDetector

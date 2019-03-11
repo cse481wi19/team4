@@ -49,7 +49,8 @@ def main():
     arm = robot_api.Arm()
     database = robot_api.Database()
     facedetector = robot_api.FaceDetector()
-    server = robot_api.Manager(database, arm, gripper, facedetector)
+    fooddetector = robot_api.FoodDetector()
+    server = robot_api.Manager(database, arm, gripper, facedetector, fooddetector)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
     
@@ -113,7 +114,7 @@ def main():
             if len(command[5:]) == 0:
                 print("No coordinate given")
             l = command[5:].split()
-            if len(l) != 3 and (len(l) == 1 and l[0] != "face"):
+            if len(l) != 3 and (len(l) == 1 and l[0] != "face" and l[0] != "food"):
                 print("Argument format: move x y z or move face") 
             elif len(l) == 3:
                 ps = PoseStamped()
@@ -123,10 +124,16 @@ def main():
                 ps.header.frame_id = 'base_link'
                 arm.move_to_pose(ps)
             else:
-                if facedetector.pose is not None:
-                    arm.move_to_pose(facedetector.pose)
+                if l[0] == "face":
+                    if facedetector.pose is not None:
+                        arm.move_to_pose(facedetector.pose)
+                    else:
+                        print("No face is detected.")
                 else:
-                    print("No face is detected.")
+                    if fooddetector.pose is not None:
+                        arm.move_to_pose(fooddetector.pose)
+                    else:
+                        print("No food is detected.")
 
         elif command[:5] == "relax":
             goal = QueryControllerStatesGoal()

@@ -16,6 +16,13 @@
 
 namespace perception_food {
 
+static float OBJ_X_MIN = 0.2;
+static float OBJ_X_MAX = 0.3;
+static float OBJ_Y_MIN = 0.15;
+static float OBJ_Y_MAX = 0.25;
+static float OBJ_Z_MIN = 0.05;
+static float OBJ_Z_MAX = 0.1;
+
 // Does a complete tabletop segmentation pipeline.
 //
 // Args:
@@ -27,7 +34,10 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
                     const ros::Publisher& marker_pub_p,
                     const ros::Publisher& surface_points_pub,
                     const ros::Publisher& above_surface_pub,
+                    const ros::Publisher& food_pub,
                     perception::ObjectRecognizer& recognizer);
+
+bool checkRange(float x, float y, float z);
 
 class FoodDetector {
  public:

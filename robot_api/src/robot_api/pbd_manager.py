@@ -37,7 +37,7 @@ class ArTagReader(object):
                 return result
 
 class Manager(object):
-    def __init__(self, database, arm, gripper, facedetector):
+    def __init__(self, database, arm, gripper, facedetector, fooddetector):
         self.db = database
         self.db.load()
         self.arm = arm
@@ -46,6 +46,7 @@ class Manager(object):
         self.sub = rospy.Subscriber("ar_pose_marker", AlvarMarkers, callback=self.reader.callback)
         self.listener = tf.TransformListener()
         self.facedetector = facedetector
+        self.fooddetector = fooddetector
         self.savedBefore = False
 
     # Currently only add pose relative to tag instead of base_link
@@ -69,7 +70,7 @@ class Manager(object):
             ps.pose = pose
             ps.header.frame_id = 'base_link'
             self.db.add(name, ps, tag)
-        elif tag == 'open' or tag == 'close' or tag == 'face':
+        elif tag == 'open' or tag == 'close' or tag == 'face' or tag == 'food':
         	self.db.add(name, None, tag)
         else:
             # Get the coordinate of tag and compute the offset between tag and wrist
@@ -100,6 +101,11 @@ class Manager(object):
                         self.arm.move_to_pose(self.facedetector.pose)
                     else:
                         print("No face is detected.")
+                elif tag == 'food':
+                    if self.fooddetector.pose is not None:
+                        self.arm.move_to_pose(self.fooddetector.pose)
+                    else:
+                        print("No food is detected.")
                 else:
                     tagPs = self.reader.getTag(tag)
                     if tagPs == None:
