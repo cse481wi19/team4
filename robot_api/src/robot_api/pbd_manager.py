@@ -70,7 +70,7 @@ class Manager(object):
             ps.pose = pose
             ps.header.frame_id = 'base_link'
             self.db.add(name, ps, tag)
-        elif tag == 'open' or tag == 'close' or tag == 'face' or tag == 'food':
+        elif tag == 'open' or tag == 'close' or tag == 'face':
         	self.db.add(name, None, tag)
         else:
             # Get the coordinate of tag and compute the offset between tag and wrist
@@ -101,11 +101,11 @@ class Manager(object):
                         self.arm.move_to_pose(self.facedetector.pose)
                     else:
                         print("No face is detected.")
-                elif tag == 'food':
-                    if self.fooddetector.pose is not None:
-                        self.arm.move_to_pose(self.fooddetector.pose)
-                    else:
-                        print("No food is detected.")
+                # elif tag == 'food':
+                #     if self.fooddetector.pose is not None:
+                #         self.arm.move_to_pose(self.fooddetector.pose)
+                #     else:
+                #         print("No food is detected.")
                 else:
                     tagPs = self.reader.getTag(tag)
                     if tagPs == None:

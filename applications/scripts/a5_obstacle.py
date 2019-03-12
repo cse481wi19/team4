@@ -29,7 +29,7 @@ def main():
     planning_scene.addBox('table', 0.5, 1, 0.72, 1, 0, 0.72/2)
 
     rospy.sleep(2)
-
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
