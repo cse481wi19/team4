@@ -8,7 +8,7 @@
   <param name="crop_max_z" value="1.5" />
   <param name="crop_max_x" value="1.05" />
   <param name="crop_min_z" value="0.7" />
-  <node pkg="perception" type="food_detection" name="food_detection" output="screen">
-    <remap from="cloud_in" to="mock_point_cloud" />
+  <node pkg="perception" type="food_detection" name="food_detection"  output="screen">
+    <remap from="cloud_in" to="head_camera/depth_registered/points" />
   </node>
 </launch>
