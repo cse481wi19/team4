@@ -61,9 +61,9 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     object_i->dimensions.x = shape.dimensions[0];
     object_i->dimensions.y = shape.dimensions[1];
     object_i->dimensions.z = shape.dimensions[2];
-    // std::cerr << "x " << shape.dimensions[0] << std::endl;
-    // std::cerr << "y " << shape.dimensions[1] << std::endl;
-    // std::cerr << "z " << shape.dimensions[2] << std::endl;
+    std::cerr << "x " << shape.dimensions[0] << std::endl;
+    std::cerr << "y " << shape.dimensions[1] << std::endl;
+    std::cerr << "z " << shape.dimensions[2] << std::endl;
     // ROS_INFO("x: %f, y: %f, z: %f", object_i->pose.position.x, object_i->pose.position.y, object_i->pose.position.z);
     objects->push_back(*object_i);
 
