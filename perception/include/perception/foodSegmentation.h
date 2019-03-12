@@ -21,7 +21,7 @@ static float OBJ_X_MAX = 0.25;
 static float OBJ_Y_MIN = 0.15;
 static float OBJ_Y_MAX = 0.30;
 static float OBJ_Z_MIN = 0.05;
-static float OBJ_Z_MAX = 0.1;
+static float OBJ_Z_MAX = 0.15;
 
 // Does a complete tabletop segmentation pipeline.
 //
