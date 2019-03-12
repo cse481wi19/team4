@@ -1,4 +1,6 @@
 <launch>
 	<include file="$(find face_detector)/launch/face_detector_common.launch" />
 	<include file="$(find robot_api)/launch/ar_desktop.launch" />
+	<include file="$(find perception)/launch/food_detection.launch" />
+	<include file="$(find robot_api)/launch/move_group.launch" />
 </launch>
