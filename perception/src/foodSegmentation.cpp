@@ -128,7 +128,7 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
 }
 
 bool checkRange(const float x, const float y, const float z) {
-    bool ret = ret &= OBJ_Z_MIN <= z && z <= OBJ_Z_MAX;
+    bool ret = OBJ_Z_MIN <= z && z <= OBJ_Z_MAX;
     // OBJ_X_MIN <= x && x <= OBJ_X_MAX;
     // ret &= OBJ_Y_MIN <= y && y <= OBJ_Y_MAX;
     
