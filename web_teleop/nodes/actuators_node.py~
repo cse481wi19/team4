@@ -63,7 +63,7 @@ def main():
     close_gripper_service = rospy.Service('web_teleop/close_gripper', CloseGripper, server.close_gripper)
     set_arm_service = rospy.Service('web_teleop/set_arm', SetArm, server.set_arm)
     move_head_service = rospy.Service('web_teleop/move_head', MoveHead, server.move_head)
-    feedingService = rospy.Service('web_teleop/feed', Feeder, server.feed)
+    feedingService = rospy.Service('web_teleop/feed', `
     rospy.spin()
 
 

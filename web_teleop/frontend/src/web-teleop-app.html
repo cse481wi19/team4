@@ -133,6 +133,15 @@
         service-type="web_teleop/MoveHead"
     ></ros-service>
 
+    <ros-service
+      id="feedService"
+      on-response="_feedSuccess"
+      on-fail="_feedError"
+      name="/web_teleop/feed"
+      ros="{{ros}}"
+      service-type="web_teleop/Feed"
+    ></ros-service>
+
     <div id="interface">
       <h1>Fetch Teleop</h1>
       <p style="color:#4B0082"><b>[[status]]</b></p>
@@ -219,6 +228,15 @@
           <paper-button on-tap="_openGripper">Open</paper-button>
           <paper-slider min="35" max="100" step="5" editable value="{{desiredForce}}"></paper-slider>
           <paper-button on-tap="_closeGripper">Set limit &amp; Close</paper-button> 
+          
+        </div>
+
+        <div id = "feeding">
+          <h3> Feeding Functions </h3>
+          <paper-button on-tap="_grabUtensil">Grab utensil</paper-button>
+          <paper-button on-tap="_feed">Feed</paper-button>
+          <paper-button on-tap="move_arm">Move Arm</paper-button>
+          <paper-button on-tap="direction">Direction</paper-button>
         </div>
       </div>
     </div>
@@ -411,6 +429,30 @@
                 }
             });
           }, 10); // Run this function every 10ms, or approximately 100 times per second.
+      }
+
+      _feed() {
+        this.status = "Starting feeding function...";
+        this.$.feedService.call({str: "feed"});
+      }
+
+      _feedSuccess() {
+        this.status = "Feeding service complete.";
+      }
+      _feedError() {
+        this.status = "Feeding service failed";
+      }
+
+      _grabUtensil() {
+        this.status = "Starting utensil function...";
+        this.$.feedService.call({"utensil"});
+      }
+
+      _utensilSuccess() {
+        this.status = "utensil service complete.";
+      }
+      _utensilError() {
+        this.status = "utensil service failed";
       }
 
       _endBaseCommand(evt) {
