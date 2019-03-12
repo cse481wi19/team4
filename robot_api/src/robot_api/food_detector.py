@@ -35,6 +35,7 @@ def pose_to_transform(pose):
 class FoodDetector(object):
     def __init__(self):
         self.sub = rospy.Subscriber("/food_pub", ObjectPosition, callback=self.callback)
+        self.pub = rospy.Publisher("/feed_pub", Pose, queue_size=5)
         self.pose = None
 
     def callback(self, msg):
@@ -61,6 +62,12 @@ class FoodDetector(object):
         pass
 
 
+    def getFood(self):
+        print('hahah')
+        pose = Pose()
+        pose.position.x = 1
+        self.pub.publish(pose)
+
 def wait_for_time():
   """Wait for simulated time to begin.
   """
@@ -71,7 +78,11 @@ def main():
     rospy.init_node('pbd')
     wait_for_time()
     fooddetector = robot_api.FoodDetector()
-    rospy.spin()
+    rospy.sleep(2)
+    pose = Pose()
+    pose.position.x = 1
+    fooddetector.pub.publish(pose)
+
 
 if __name__ == '__main__':
     main()

@@ -64,7 +64,7 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
     // std::cerr << "x " << shape.dimensions[0] << std::endl;
     // std::cerr << "y " << shape.dimensions[1] << std::endl;
     // std::cerr << "z " << shape.dimensions[2] << std::endl;
-
+    // ROS_INFO("x: %f, y: %f, z: %f", object_i->pose.position.x, object_i->pose.position.y, object_i->pose.position.z);
     objects->push_back(*object_i);
 
     float x = shape.dimensions[0];
@@ -83,35 +83,36 @@ void SegmentFoodScene(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud,
         object_marker.color.a = 0.3;
         marker_pub_p.publish(object_marker);
 
+         ////////////////////////////////////////////////////////////////////////////////////
         // Recognize the object
-        std::string name;
-        double confidence;
-        // recognize the object with the recognizer_
-        const perception::Object& object_const = *object_i;
-        recognizer.Recognize(object_const, &name, &confidence);
-        confidence = round(1000 * confidence) / 1000;
+        // std::string name;
+        // double confidence;
+        // // recognize the object with the recognizer_
+        // const perception::Object& object_const = *object_i;
+        // recognizer.Recognize(object_const, &name, &confidence);
+        // confidence = round(1000 * confidence) / 1000;
 
-        std::stringstream ss;
-        ss << name << " (" << confidence << ")";
+        // std::stringstream ss;
+        // ss << name << " (" << confidence << ")";
 
-        // Publish the recognition result as a marker
-        visualization_msgs::Marker name_marker;
-        name_marker.ns = "recognition";
-        name_marker.id = i;
-        name_marker.header.frame_id = "base_link";
-        name_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-        name_marker.pose.position = object_i->pose.position;
-        name_marker.pose.position.z += 0.1;    
-        name_marker.pose.orientation.w = 1;
-        name_marker.scale.x = 0.025;
-        name_marker.scale.y = 0.025;
-        name_marker.scale.z = 0.025;
-        name_marker.color.r = 0;
-        name_marker.color.g = 0;
-        name_marker.color.b = 1.0;
-        name_marker.color.a = 1.0;
-        name_marker.text = ss.str();
-        marker_pub_p.publish(name_marker);
+        // // Publish the recognition result as a marker
+        // visualization_msgs::Marker name_marker;
+        // name_marker.ns = "recognition";
+        // name_marker.id = i;
+        // name_marker.header.frame_id = "base_link";
+        // name_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        // name_marker.pose.position = object_i->pose.position;
+        // name_marker.pose.position.z += 0.1;    
+        // name_marker.pose.orientation.w = 1;
+        // name_marker.scale.x = 0.025;
+        // name_marker.scale.y = 0.025;
+        // name_marker.scale.z = 0.025;
+        // name_marker.color.r = 0;
+        // name_marker.color.g = 0;
+        // name_marker.color.b = 1.0;
+        // name_marker.color.a = 1.0;
+        // name_marker.text = ss.str();
+        // marker_pub_p.publish(name_marker);
 
         // publish the recognition result as a msg
         perception_msgs::ObjectPosition position;
