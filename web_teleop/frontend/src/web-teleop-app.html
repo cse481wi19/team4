@@ -14,7 +14,6 @@
       :host {
         display: block;
       }
-
       paper-slider {            
           --paper-slider-input: {                    
             width: 100px;                        
@@ -24,40 +23,32 @@
           background-color: #eee;                     
           user-select: none;
       }
-
       h1, #camera, #btns {
         margin-bottom: 1em;
       }
-
       #forwardbtn {
         margin-bottom: 0.6em;
       }
-
       #interface {
         margin: auto;
         text-align: center;
       }
-
       #btns {
         display: flex;
         align-items: flex-start;
         flex-wrap: wrap;
         height: 100%;
       }
-
       #gripper, #torso {
         width: 50%;
       }
-
       #torso paper-slider, #gripper paper-slider {
         margin: auto;
       }
-
       #driving {
         display: inline-block;
         margin-bottom: 3em;
       }
-
       #camera img {
           width: 100%;
           margin: auto;
@@ -131,15 +122,6 @@
         name="/web_teleop/move_head"
         ros="{{ros}}"
         service-type="web_teleop/MoveHead"
-    ></ros-service>
-
-    <ros-service
-      id="feedService"
-      on-response="_feedSuccess"
-      on-fail="_feedError"
-      name="/web_teleop/feed"
-      ros="{{ros}}"
-      service-type="web_teleop/Feed"
     ></ros-service>
 
     <div id="interface">
@@ -228,15 +210,6 @@
           <paper-button on-tap="_openGripper">Open</paper-button>
           <paper-slider min="35" max="100" step="5" editable value="{{desiredForce}}"></paper-slider>
           <paper-button on-tap="_closeGripper">Set limit &amp; Close</paper-button> 
-          
-        </div>
-
-        <div id = "feeding">
-          <h3> Feeding Functions </h3>
-          <paper-button on-tap="_grabUtensil">Grab utensil</paper-button>
-          <paper-button on-tap="_feed">Feed</paper-button>
-          <paper-button on-tap="move_arm">Move Arm</paper-button>
-          <paper-button on-tap="direction">Direction</paper-button>
         </div>
       </div>
     </div>
@@ -252,131 +225,103 @@
        var yPos = 0;
       class WebTeleopApp extends Polymer.Element {
         static get is() { return 'web-teleop-app'; }
-
         static get properties() {
           return {};     
         }        
-
         _handleConnection() {
           this.status = 'Connected to the websocket server.';
           console.log(this.status);
         }
-
         _handleClose() {
           this.status = 'Closed connection to the websocket server.';
           console.log(this.status);
         }
-
         _handleError() {
           this.status = 'Error connecting to the websocket server.';
           console.log(this.status);
         }
-
         _handleTorsoHeight(evt) {
           var msg = evt.detail;
           // console.log(msg);
         }
-
       // Rounds val to a given precision, where the precision is given as the    
       // step size between numbers in the output range.
       _round(val, precision) {                   
         return Math.round(val/precision) * precision;
       }
-
       _setTorso() {
           this.status = 'Setting torso to ' + this.desiredTorsoHeight + ' meters...';
           this.$.torsoService.call({height: this.desiredTorsoHeight});
       }
-
       _openGripper() {
         this.status =  'Opening gripper...';
         this.$.openGripperService.call({});
       }
-
       _closeGripper() {
         this.status =  'Closing gripper with force ' + this.desiredForce + '...';
         this.$.closeGripperService.call({force: this.desiredForce});
       }
-
       _setArm() {
         this.status =  'Setting arm...';
         var desiredJoints = [this.desiredArm1, this.desiredArm2, this.desiredArm3, this.desiredArm4, this.desiredArm5, this.desiredArm6, this.desiredArm7];
         this.$.setArmService.call({joints: desiredJoints});
       }
-
       _handleTorsoSuccess() {
           this.status = 'Set torso to ' + this.desiredTorsoHeight + ' meters.';
       }
-
       _handleTorsoError(evt) {
           this.status = 'Error: ' + evt.detail;
       }
-
       _openGripperSuccess() {
           this.status = 'Open gripper';
       }
-
       _openGripperError(evt) {
           this.status = 'Error: ' + evt.detail;
       }
-
       _closeGripperSuccess() {
           this.status = 'Close gripper';
       }
-
       _closeGripperError(evt) {
           this.status = 'Error: ' + evt.detail;
       }
-
       _setArmSuccess() {
           this.status = 'Set arm.';
       }
-
       _setArmError(evt) {
           this.status = 'Error: ' + evt.detail;
       }
-
-
       _startForward(evt) {
         evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
           this._move(this, "forward");
       }
-
       _startBack(evt) {
         evt.preventDefault();
           this._move(this, "back");
       }
-
       _startLeft(evt) {
         evt.preventDefault();
           this._move(this, "left");
       }
-
       _startRight(evt) {
         evt.preventDefault();
           this._move(this, "right");
       }
-
       _lookUp(evt) {
         evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
           this._moveHead("up");
       }
-
       _lookDown(evt) {
         evt.preventDefault();
           this._moveHead("down");
       }
-
       _lookLeft(evt) {
         evt.preventDefault();
           this._moveHead("left");
       }
-
       _lookRight(evt) {
         evt.preventDefault();
           this._moveHead("right");
       }
-
       _moveHead(direction) {
           this.status = 'Head moving ' + direction + '...';
           if (direction == "up") {
@@ -389,9 +334,7 @@
             xPos -= 0.15;
           }
           this.$.moveHeadService.call({xv: xPos, yv: yPos});
-
       }
-
       _moveHeadSuccess() {
           this.status = 'Head stopped moving.';
       }
@@ -402,7 +345,6 @@
             // The timer should not be set at this point, but clear it just in case
             clearInterval(this.baseCommand);
           }
-
           var xv = 0;
           var yv = 0;
           if (direction == "forward") {
@@ -414,7 +356,6 @@
           } else {
             yv = -0.2;
           }
-
           this.baseCommand = setInterval(function() {
             baseTopic.publish({
                 linear: {
@@ -430,47 +371,18 @@
             });
           }, 10); // Run this function every 10ms, or approximately 100 times per second.
       }
-
-      _feed() {
-        this.status = "Starting feeding function...";
-        this.$.feedService.call({str: "feed"});
-      }
-
-      _feedSuccess() {
-        this.status = "Feeding service complete.";
-      }
-      _feedError() {
-        this.status = "Feeding service failed";
-      }
-
-      _grabUtensil() {
-        this.status = "Starting utensil function...";
-        this.$.feedService.call({"utensil"});
-      }
-
-      _utensilSuccess() {
-        this.status = "utensil service complete.";
-      }
-      _utensilError() {
-        this.status = "utensil service failed";
-      }
-
       _endBaseCommand(evt) {
           this.status = 'Stopped driving.';
           clearInterval(this.baseCommand);
       }
-
       _endHeadCommand(evt) {
           
       }
-
       ready() {
           super.ready();
           this.hostname = window.location.hostname;
       }
-
     }
-
     window.customElements.define(WebTeleopApp.is, WebTeleopApp);
   </script>
 </dom-module>

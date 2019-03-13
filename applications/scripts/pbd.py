@@ -104,9 +104,13 @@ def main():
 
         elif command[:5] == "reset":
             ps = PoseStamped()
-            ps.pose.position.x = 0.5
-            ps.pose.position.y = 0.5
-            ps.pose.position.z = 0.75
+            ps.pose.position.x = 0.46
+            ps.pose.position.y = -0.43
+            ps.pose.position.z = 1.05
+            ps.pose.orientation.x = 0.38
+            ps.pose.orientation.y = 0.08
+            ps.pose.orientation.z = 0.23
+            ps.pose.orientation.w = 0.89
             ps.header.frame_id = 'base_link'
             arm.move_to_pose(ps)
 

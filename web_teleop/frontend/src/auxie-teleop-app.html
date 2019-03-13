@@ -1,0 +1,315 @@
+<!--Team4 Web Teleop Interface-->
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/ros-websocket/ros-websocket.html">
+<link rel="import" href="../bower_components/ros-topic/ros-topic.html"> 
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/ros-service/ros-service.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">    
+
+<dom-module id="auxie-teleop-app">
+ 	<template>
+		<ros-service            
+			id="torsoService"
+			on-response="_handleTorsoSuccess"
+			on-fail="_handleTorsoError"
+			name="/web_teleop/set_torso"
+			ros="{{ros}}"
+			service-type="web_teleop/SetTorso"
+		></ros-service>
+    
+ 		<div id="interface">
+	        <div id="header">
+	            <img src="src/auxielogo_sm.jpeg" alt="auxie logo" width="220" height="auto"/>
+	            <div id="seperator">
+	                <h2>Your personal feeding assistant</h2>
+	            </div>
+	        </div>
+	        
+	        <div id="main_interface">
+	            <div id="auto">
+	                <h3>Auto Mode <paper-button id="info_btn" on-tap="_showAutoInfo"><img src="src/info.png" alt="get_info" width="20" height="auto" /></paper-button></h3>
+
+	                <div id="auto_info" style="display:none">
+	                	<p><b>Grab Fork</b>: Let Auxie fetch the fork.</p>
+	                	<p><b>Grab Spoon</b>: Let Auxie fetch the spoon.</p>
+	                	<p><b>Feed</b>: Let Auxie feed you!</p>
+	                	<p><b>EMERGENCY STOP</b>: STOP AUXIE'S MOVE IMMEDIATELY!!!</p>
+	                </div>
+
+	                <div id="feeding">
+	                    <paper-button on-tap="_grabFork">Grab Fork</paper-button>
+	                    <paper-button on-tap="_grabSpoon">Grab Spoon</paper-button>
+	                    <paper-button on-tap="_feed">Feed</paper-button>
+	                </div>
+	            </div>
+	            
+	            <div id="manual">
+	                <h3>Manual Mode <paper-button id="info_btn" on-tap="_showManualInfo"><img src="src/info.png" alt="get_info" width="20" height="auto" /></paper-button></h3>
+	                
+	                <div id="manual_info" style="display:none">
+						<p><b>Gripper Position</b>: Set Auxie's gripper position by specifying the gripper's X, Y and Z value with respect to its base. After you've specified all three values, click "Set Gripper Position" and Auxie will move its "hand" to the place you want!</p>
+	                	<p><b>Open Gripper</b>: Open Auxie's gripper.</p>
+	                	<p><b>Close Gripper</b>: Close Auxie's gripper.</p>
+	                	<p><b>EMERGENCY STOP</b>: STOP AUXIE'S MOVE IMMEDIATELY!!!</p>
+	                </div>
+
+	                <h4>Gripper Position</h4>
+	                <div class="slidecontainer">
+	                	<span>X</span>
+	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                </div>
+	                <div class="slidecontainer">
+	                	<span>Y</span>
+	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                </div>
+	                <div class="slidecontainer">
+	                	<span>Z</span>
+	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                </div>
+	                <paper-button id="set_gripper_btn" on-tap="_setArm">Set Gripper Position</paper-button>
+
+	                <div id="manual_btns">
+	                    <paper-button on-tap="_openGripper">Open Gripper</paper-button>
+	                    <paper-button on-tap="_closeGripper">Close Gripper</paper-button>
+	                </div>
+	            </div>
+
+	            <paper-button id="emergency_stop">EMERGENCY STOP</paper-button>
+
+	        </div>
+	        
+	        <div id="tab">
+	            <paper-button id="auto_btn" on-tap="_showAuto">Auto Mode</paper-button>
+	            <paper-button id="manual_btn" on-tap="_showManual">Manual Mode</paper-button>  
+	        </div>
+	    </div>
+
+        <!-- Style -->
+        <style is="custom-style" include="iron-flex"></style>
+	    <style>
+			:host {
+				display: block;
+			}
+
+			#interface {
+			    text-align: center;
+			    margin: 0;
+			    font-family: sans-serif;
+			}
+
+			#main_interface {
+				margin-bottom: 90px;
+			}
+
+			button, paper-button {
+			    border-color: #dee2e4;
+			    background-color: #dee2e4;
+			}
+
+			#header {
+			    margin: auto;
+			}
+
+			#seperator {
+			    background-color: #469bf8;
+			    color: #fff;
+			}
+
+			#seperator h2 {
+			    font-size: 0.8em;
+			    font-weight: 200;
+			    padding-top: 0.5em;
+			    padding-bottom: 0.5em;
+			}
+
+			#auto, #manual {
+				color: #435772;
+				margin-bottom: 1.3em;
+			}
+
+			#manual {
+			    display: none; 
+			}
+
+			#manual h4 {
+				margin-bottom: 0.5em;
+			}
+
+			#tab {
+			    background-color: #fff;
+			    position: fixed;
+			    bottom: 0;
+			    left: 0;
+			    width: 100%;
+			    display: grid;
+			    grid-template-columns: 1fr 1fr;
+			    grid-template-rows: 1fr;
+			}
+
+			#tab paper-button {
+			    font-size: 1em;
+			    height: 3em;
+			    margin: 0;
+			}
+
+			#auto_btn {
+				/*border-right: 2px solid red;*/
+				font-weight: 700;
+			}
+
+			#manual_btn {
+				/*border-left: 2px solid red;*/
+				font-weight: 300;
+			}
+
+			h3 {
+			    font-size: 1.3em;
+			}
+
+			#feeding {
+			    display: flex;
+			    flex-direction: column;
+			    height: 100%;
+			}
+
+			#feeding paper-button {
+			    margin: auto;
+			    width: 50%;
+			    margin-bottom: 1em;
+			    font-size: 1em;
+			    height: 3em;
+			    text-transform: capitalize;
+			}
+
+			#manual paper-button {
+			    height: 2em;
+			}
+
+			#manual_btns {
+			    margin-top: 1em;
+			}
+
+			#manual_btns paper-button {
+			    text-transform: capitalize;
+			}
+
+			#emergency_stop {
+				height: 4em;
+				background-color: #FFAB36;
+			}
+
+			#set_gripper_btn {
+			    margin-top: 1em;
+			}
+
+			#info_btn {
+				padding: 0;
+				min-width: 0;
+				height: auto !important;
+			}
+
+			#auto_info, #manual_info {
+				background-color: #ccebff;
+				z-index: 1;
+				padding: 0.5em;
+				margin-bottom: 0.5em;
+			}
+
+			/* SLIDER */
+			.slidecontainer {
+				width: 50%; /* Width of the outside container */
+				margin: auto;
+			}
+
+			/* The slider itself */
+			.slider {
+				-webkit-appearance: none;  /* Override default CSS styles */
+				appearance: none;
+				width: 100%; /* Full-width */
+				height: 25px; /* Specified height */
+				background: #d3d3d3; /* Grey background */
+				outline: none; /* Remove outline */
+				opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+				-webkit-transition: .2s; /* 0.2 seconds transition on hover */
+				transition: opacity .2s;
+			}
+
+			/* Mouse-over effects */
+			.slider:hover {
+				opacity: 1; /* Fully shown on mouse-over */
+			}
+
+			/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
+			.slider::-webkit-slider-thumb {
+				-webkit-appearance: none; /* Override default look */
+				appearance: none;
+				width: 25px; /* Set a specific slider handle width */
+				height: 25px; /* Slider handle height */
+				background: #469bf8; /* Green background */
+				cursor: pointer; /* Cursor on hover */
+			}
+
+			.slider::-moz-range-thumb {
+				width: 25px; /* Set a specific slider handle width */
+				height: 25px; /* Slider handle height */
+				background: #4CAF50; /* Green background */
+				cursor: pointer; /* Cursor on hover */
+			}
+			/* SLIDER */
+		</style>
+	</template>
+
+	<script>
+		/**
+		* @customElement
+		* @polymer
+		*/
+		class WebTeleopApp extends Polymer.Element {
+			static get is() { return 'auxie-teleop-app'; }
+
+			static get properties() {
+				return {};     
+			}        
+		
+			ready() {
+				super.ready();
+				this.hostname = window.location.hostname;
+			}
+
+			_showAuto() {
+				this.$.auto_btn.style.fontWeight = "700";
+				this.$.auto.style.display = "block";
+				this.$.manual_btn.style.fontWeight = "300";
+				this.$.manual.style.display = "none";
+			}
+
+			_showManual() {
+				this.$.auto_btn.style.fontWeight = "300";
+				this.$.auto.style.display = "none";
+				this.$.manual_btn.style.fontWeight = "700";
+				this.$.manual.style.display = "block";
+			}
+
+			_showAutoInfo() {
+				if (this.$.auto_info.style.display == "none") {
+					this.$.auto_info.style.display = "block";
+				} else {
+					this.$.auto_info.style.display = "none";
+				}
+			}
+
+			_showManualInfo() {
+				if (this.$.manual_info.style.display == "none") {
+					this.$.manual_info.style.display = "block";
+				} else {
+					this.$.manual_info.style.display = "none";
+				}
+			}
+		}
+
+		window.customElements.define(WebTeleopApp.is, WebTeleopApp);
+	</script>
+
+
+</dom-module>

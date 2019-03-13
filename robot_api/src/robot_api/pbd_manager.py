@@ -55,6 +55,8 @@ class Manager(object):
         if not self.savedBefore:
             self.reader.update()
             self.savedBefore = True
+            self.fooddetector.getFood()
+            rospy.sleep(3)
         (position, quaternion) = self.listener.lookupTransform('base_link', 'wrist_roll_link', rospy.Time(0))
         pose = Pose()
         pose.position.x = position[0]
@@ -72,6 +74,16 @@ class Manager(object):
             self.db.add(name, ps, tag)
         elif tag == 'open' or tag == 'close' or tag == 'face':
         	self.db.add(name, None, tag)
+        elif tag == 'food':
+            tagPose = self.fooddetector.pose
+            if tagPose == None:
+                print("Frame does not exist")
+            else:
+                t_pos = tagPose.pose
+                t_mat = pose_to_transform(t_pos)
+                w_mat = pose_to_transform(pose)
+                offset = np.dot(np.linalg.inv(t_mat), w_mat)
+                self.db.add(name, offset, tag)
         else:
             # Get the coordinate of tag and compute the offset between tag and wrist
             tagPose = self.reader.getTag(tag)
@@ -88,6 +100,9 @@ class Manager(object):
     def run(self, name):
         self.reader.update()
         self.savedBefore = False
+        self.fooddetector.getFood()
+        rospy.sleep(3)
+
         if self.db.get(name) is not None:
             for offset, tag in self.db.get(name):
                 if tag == 'base_link':
@@ -101,11 +116,25 @@ class Manager(object):
                         self.arm.move_to_pose(self.facedetector.pose)
                     else:
                         print("No face is detected.")
-                # elif tag == 'food':
-                #     if self.fooddetector.pose is not None:
-                #         self.arm.move_to_pose(self.fooddetector.pose)
-                #     else:
-                #         print("No food is detected.")
+                elif tag == 'food':
+                    tagPs = self.fooddetector.pose
+                    if tagPs == None:
+                        print("Frame does not exist")
+                    else:
+                        # Get the current transform of the given tag
+                        tagMat = pose_to_transform(tagPs.pose)
+                        # Compute the new coordinate based on pre-set frame
+                        newTrans = np.dot(tagMat,offset)
+                        pose = transform_to_pose(newTrans)
+                        result = PoseStamped()
+                        result.pose = pose
+                        result.header = tagPs.header
+                        # Move to the new coordinate
+                        self.arm.move_to_pose(result)
+                    # if self.fooddetector.pose is not None:
+                    #     self.arm.move_to_pose(self.fooddetector.pose)
+                    # else:
+                    #     print("No food is detected.")
                 else:
                     tagPs = self.reader.getTag(tag)
                     if tagPs == None:

@@ -1,6 +1,6 @@
 {
-  "name": "web-teleop",
-  "short_name": "web-teleop",
+  "name": "auxie-teleop",
+  "short_name": "auxie-teleop",
   "start_url": "/",
   "display": "standalone"
 }

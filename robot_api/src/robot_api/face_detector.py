@@ -66,12 +66,12 @@ class FaceDetector(object):
             ps.pose.position.z += pose.position.z
             ps.pose.position.x -= 0.45
             ps.pose.position.y -= 0
-            ps.pose.position.z -= 0.15
+            ps.pose.position.z -= 0.52
 
-            ps.pose.orientation.x = 0
+            ps.pose.orientation.x = 0.727
             ps.pose.orientation.y = 0
             ps.pose.orientation.z = 0
-            ps.pose.orientation.w = 0
+            ps.pose.orientation.w = 0.687
             ps.header.frame_id = 'base_link'
             self.pose = ps
           except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
