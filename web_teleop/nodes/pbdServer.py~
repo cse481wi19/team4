@@ -62,7 +62,7 @@ class CommandServer(object):
 
 
 def main():
-    rospy.init_node('web_teleop_actuators')
+    rospy.init_node('pbd_server')
     wait_for_time()
     server = CommandServer()
     command_service = rospy.Service('command_service', CommandService, server.parse_command)

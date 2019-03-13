@@ -63,7 +63,6 @@ class FoodDetector(object):
 
 
     def getFood(self):
-        print('hahah')
         pose = Pose()
         pose.position.x = 1
         self.pub.publish(pose)

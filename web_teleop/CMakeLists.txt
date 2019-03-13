@@ -63,6 +63,7 @@ add_service_files(
   OpenGripper.srv
   SetArm.srv
   MoveHead.srv
+  CommandService.srv
 )
 
 ## Generate actions in the 'action' folder

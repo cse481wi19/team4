@@ -9,20 +9,34 @@
 
 <dom-module id="auxie-teleop-app">
  	<template>
+ 		<ros-websocket auto ros="{{ros}}"
+			url="{{url}}"
+			on-connection="_handleConnection"
+			on-close="_handleClose"
+			on-error="_handleError"
+	    ></ros-websocket>
+
+	    <ros-topic
+	        id="baseTopic"
+	        ros="{{ros}}"
+	        topic="cmd_vel"
+	        msg-type="geometry_msgs/Twist"
+	    ></ros-topic>
+
 		<ros-service            
-			id="torsoService"
-			on-response="_handleTorsoSuccess"
-			on-fail="_handleTorsoError"
-			name="/web_teleop/set_torso"
+			id="commandService"
+			on-response="_handleCommandSuccess"
+			on-fail="_handleCommandFail"
+			name="/web_teleop/command_service"
 			ros="{{ros}}"
-			service-type="web_teleop/SetTorso"
+			service-type="web_teleop/CommandService"
 		></ros-service>
-    
+
  		<div id="interface">
 	        <div id="header">
 	            <img src="src/auxielogo_sm.jpeg" alt="auxie logo" width="220" height="auto"/>
 	            <div id="seperator">
-	                <h2>Your personal feeding assistant</h2>
+	                <h2>[[status]]</h2>
 	            </div>
 	        </div>
 	        
@@ -57,21 +71,24 @@
 	                <h4>Gripper Position</h4>
 	                <div class="slidecontainer">
 	                	<span>X</span>
-	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperX}}"></paper-slider>
+	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
 	                </div>
 	                <div class="slidecontainer">
 	                	<span>Y</span>
-	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperY}}"></paper-slider>
+	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
 	                </div>
 	                <div class="slidecontainer">
 	                	<span>Z</span>
-	                    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperZ}}"></paper-slider>
+	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
 	                </div>
-	                <paper-button id="set_gripper_btn" on-tap="_setArm">Set Gripper Position</paper-button>
+	                <paper-button id="set_gripper_btn" on-tap="_setGripper">Set Gripper Position</paper-button>
 
 	                <div id="manual_btns">
-	                    <paper-button on-tap="_openGripper">Open Gripper</paper-button>
-	                    <paper-button on-tap="_closeGripper">Close Gripper</paper-button>
+	                    <paper-button id="open_gripper_btn" on-tap="_openGripper">Open Gripper</paper-button>
+	                    <paper-button id="close_gripper_btn" on-tap="_closeGripper">Close Gripper</paper-button>
 	                </div>
 	            </div>
 
@@ -215,48 +232,6 @@
 				padding: 0.5em;
 				margin-bottom: 0.5em;
 			}
-
-			/* SLIDER */
-			.slidecontainer {
-				width: 50%; /* Width of the outside container */
-				margin: auto;
-			}
-
-			/* The slider itself */
-			.slider {
-				-webkit-appearance: none;  /* Override default CSS styles */
-				appearance: none;
-				width: 100%; /* Full-width */
-				height: 25px; /* Specified height */
-				background: #d3d3d3; /* Grey background */
-				outline: none; /* Remove outline */
-				opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-				-webkit-transition: .2s; /* 0.2 seconds transition on hover */
-				transition: opacity .2s;
-			}
-
-			/* Mouse-over effects */
-			.slider:hover {
-				opacity: 1; /* Fully shown on mouse-over */
-			}
-
-			/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
-			.slider::-webkit-slider-thumb {
-				-webkit-appearance: none; /* Override default look */
-				appearance: none;
-				width: 25px; /* Set a specific slider handle width */
-				height: 25px; /* Slider handle height */
-				background: #469bf8; /* Green background */
-				cursor: pointer; /* Cursor on hover */
-			}
-
-			.slider::-moz-range-thumb {
-				width: 25px; /* Set a specific slider handle width */
-				height: 25px; /* Slider handle height */
-				background: #4CAF50; /* Green background */
-				cursor: pointer; /* Cursor on hover */
-			}
-			/* SLIDER */
 		</style>
 	</template>
 
@@ -274,6 +249,7 @@
 		
 			ready() {
 				super.ready();
+				this.status = "Auxie, your assisitve feeder";
 				this.hostname = window.location.hostname;
 			}
 
@@ -305,6 +281,63 @@
 				} else {
 					this.$.manual_info.style.display = "none";
 				}
+			}
+
+			// Integration with backend
+			// _handleConnection() {
+			// 	this.status = 'Connected to the websocket server.';
+			// 	console.log(this.status);
+			// }
+
+			// _handleClose() {
+			// 	this.status = 'Closed connection to the websocket server.';
+			// 	console.log(this.status);
+			// }
+
+			_handleCommandSuccess() {
+				this.$.open_gripper_btn.textContent = "Open Gripper";
+				this.$.close_gripper_btn.textContent = "Close Gripper";
+				this.status = "Gripper Closed";
+			}
+
+			_handleCommandFail() {
+				this.status = "Gripper Closed";
+			}
+
+			_openGripper() {
+				this.$.open_gripper_btn.textContent = "Opening gripper...";
+				this.status = "Opening gripper...";
+				this.$.commandService.call({command: "open"});
+			}
+
+			_closeGripper() {
+				this.$.close_gripper_btn.textContent = "Closing gripper...";
+				this.status = "Closing gripper...";
+				this.$.commandService.call({command: "close"});
+			}
+
+			_setGripper() {
+				// this.status =  'Setting arm...';
+				var desiredPosition = [this.desiredGripperX.toString(), this.desiredGripperY.toString(), this.desiredGripperZ.toString()];
+				this.$.commandService.call({command: "move", args: desiredPosition});
+			}
+
+			_grabFork() {
+				var arg = ["fork"];
+				this.$.open_gripper_btn.textContent = "Grabbing fork...";
+				this.$.commandService.call({command: "run", args: arg});
+			}
+
+			_grabSpoon() {
+				var arg = ["spoon"];
+				this.$.open_gripper_btn.textContent = "Grabbing spoon...";
+				this.$.commandService.call({command: "run", args: arg});
+			}
+
+			_feed() {
+				var arg = ["feed"];
+				this.$.open_gripper_btn.textContent = "Opening gripper...";
+				this.$.commandService.call({command: "run", args: arg});
 			}
 		}
 

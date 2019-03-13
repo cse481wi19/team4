@@ -1,69 +1,78 @@
 #!/usr/bin/env python
 
-import robot_api
+from visualization_msgs.msg import InteractiveMarker, InteractiveMarkerControl, InteractiveMarkerFeedback
+from visualization_msgs.msg import Marker
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from geometry_msgs.msg import Quaternion, Pose, Point, Vector3, PoseStamped
+from std_msgs.msg import Header, ColorRGBA
+from web_teleop.srv import CommandService, CommandServiceResponse
+from robot_controllers_msgs.msg import QueryControllerStatesAction, QueryControllerStatesGoal, ControllerState
 import rospy
-from web_teleop.srv import SetTorso, SetTorsoResponse
-from web_teleop.srv import OpenGripper, OpenGripperResponse, CloseGripper, CloseGripperResponse
-from web_teleop.srv import SetArm, SetArmResponse
-from web_teleop.srv import MoveHead, MoveHeadResponse
-from robot_api import ArmJoints 
-from robot_api import pbd_manager.py
+import actionlib
+import numpy as np
+from ar_track_alvar_msgs.msg import AlvarMarkers
+import tf
+import tf.transformations as tft
+import robot_api
+import math
+import pickle
+from map_annotator.msg import PoseNames, UserAction
 
 def wait_for_time():
-    """Wait for simulated time to begin.
-    """
-    while rospy.Time().now().to_sec() == 0:
-        pass
+  """Wait for simulated time to begin.
+  """
+  while rospy.Time().now().to_sec() == 0:
+    pass
 
-
-class ActuatorServer(object):
+class CommandServer(object):
     def __init__(self):
-        self._torso = robot_api.Torso()
-        self._gripper = robot_api.Gripper()
-        self._arm = robot_api.Arm()
-        self._head = robot_api.Head()
-	self._feeder = robot_api.Manager()
+        self.gripper = robot_api.Gripper()
+        self.arm = robot_api.Arm()
+        self.database = robot_api.Database()
+        self.facedetector = robot_api.FaceDetector()
+        self.fooddetector = robot_api.FoodDetector()
+        self.controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
+        self.server = robot_api.Manager(self.database, self.arm, self.gripper, self.facedetector, self.fooddetector)
 
-    def handle_set_torso(self, request):
-        # TODO: move the torso to the requested height
-        self._torso.set_height(request.height)
-        return SetTorsoResponse()
+    def parse_command(self, request):
+        if request.command == "run":
+            self.server.run(request.argv[0])
 
-    def open_gripper(self, request):
-        self._gripper.open()
-        return OpenGripperResponse()
+        elif request.command == "relax":
+            goal = QueryControllerStatesGoal()
+            state = ControllerState()
+            state.name = 'arm_controller/follow_joint_trajectory'
+            state.state = ControllerState.STOPPED
+            goal.updates.append(state)
+            self.controller_client.send_goal(goal)
+            self.controller_client.wait_for_result(rospy.Duration(5))
+            return CommandServiceResponse()
 
-    def close_gripper(self, request):
-        self._gripper.close(request.force)
-        return CloseGripperResponse()
+        elif request.command == "move":
+            ps = PoseStamped()
+            ps.pose.position.x = float(request.args[0])
+            ps.pose.position.y = float(request.args[1])
+            ps.pose.position.z = float(request.args[2])
+            ps.header.frame_id = 'base_link'
+            self.arm.move_to_pose(ps)
+            return CommandServiceResponse()
 
-    def set_arm(self, request):
-        j = ArmJoints.from_list(request.joints)
-        self._arm.move_to_joints(j)
-        return SetArmResponse()
+        elif request.command == "close":
+            self.gripper.close()
+            return CommandServiceResponse()
 
-    def move_head(self, request):
-        self._head.pan_tilt(request.xv, request.yv)
-        return MoveHeadResponse()
+        elif request.command == "open":
+            self.gripper.open()
+            return CommandServiceResponse()
 
-    def feed(self, stringCommands):
-	self._feeder.run(stringCommands)
-	return feedResponse()
 
 
 
 def main():
     rospy.init_node('web_teleop_actuators')
     wait_for_time()
-    server = ActuatorServer()
-    rospy.loginfo("s")
-    torso_service = rospy.Service('web_teleop/set_torso', SetTorso,
-                                  server.handle_set_torso)
-    open_gripper_service = rospy.Service('web_teleop/open_gripper', OpenGripper, server.open_gripper)
-    close_gripper_service = rospy.Service('web_teleop/close_gripper', CloseGripper, server.close_gripper)
-    set_arm_service = rospy.Service('web_teleop/set_arm', SetArm, server.set_arm)
-    move_head_service = rospy.Service('web_teleop/move_head', MoveHead, server.move_head)
-    feedingService = rospy.Service('web_teleop/feed', Feeder, server.feed)
+    server = CommandServer()
+    command_service = rospy.Service('/web_teleop/command_service', CommandService, server.parse_command)
     rospy.spin()
 
 
