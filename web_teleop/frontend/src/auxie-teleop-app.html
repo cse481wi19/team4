@@ -52,9 +52,9 @@
 	                </div>
 
 	                <div id="feeding">
-	                    <paper-button on-tap="_grabFork">Grab Fork</paper-button>
-	                    <paper-button on-tap="_grabSpoon">Grab Spoon</paper-button>
-	                    <paper-button on-tap="_feed">Feed</paper-button>
+	                    <paper-button id="grab_fork_btn" on-tap="_grabFork" class="btn">Grab Fork</paper-button>
+	                    <paper-button id="grab_spoon_btn" on-tap="_grabSpoon" class="btn">Grab Spoon</paper-button>
+	                    <paper-button id="feed_btn" on-tap="_feed" class="btn">Feed</paper-button>
 	                </div>
 	            </div>
 	            
@@ -84,15 +84,15 @@
 	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperZ}}"></paper-slider>
 	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
 	                </div>
-	                <paper-button id="set_gripper_btn" on-tap="_setGripper">Set Gripper Position</paper-button>
+	                <paper-button id="set_gripper_btn" on-tap="_setGripper" class="btn">Set Gripper Position</paper-button>
 
 	                <div id="manual_btns">
-	                    <paper-button id="open_gripper_btn" on-tap="_openGripper">Open Gripper</paper-button>
-	                    <paper-button id="close_gripper_btn" on-tap="_closeGripper">Close Gripper</paper-button>
+	                    <paper-button id="open_gripper_btn" on-tap="_openGripper" class="btn">Open Gripper</paper-button>
+	                    <paper-button id="close_gripper_btn" on-tap="_closeGripper" class="btn">Close Gripper</paper-button>
 	                </div>
 	            </div>
 
-	            <paper-button id="emergency_stop">EMERGENCY STOP</paper-button>
+	            <paper-button id="emergency_stop_btn" on-tap="_emergencyStop" class="btn">EMERGENCY STOP</paper-button>
 
 	        </div>
 	        
@@ -211,7 +211,7 @@
 			    text-transform: capitalize;
 			}
 
-			#emergency_stop {
+			#emergency_stop_btn {
 				height: 4em;
 				background-color: #FFAB36;
 			}
@@ -232,6 +232,11 @@
 				padding: 0.5em;
 				margin-bottom: 0.5em;
 			}
+
+			.slidecontainer {
+				width: 50%; 
+				margin: auto;
+			}
 		</style>
 	</template>
 
@@ -240,6 +245,15 @@
 		* @customElement
 		* @polymer
 		*/
+		// the argument list we pass to the service
+		var argsForService;
+		// the last button user has pressed
+		var btn;
+		// the text in the last button the user has pressed
+		var btn_original_text;
+		// all the functional buttons
+		var btns;
+
 		class WebTeleopApp extends Polymer.Element {
 			static get is() { return 'auxie-teleop-app'; }
 
@@ -251,6 +265,7 @@
 				super.ready();
 				this.status = "Auxie, your assisitve feeder";
 				this.hostname = window.location.hostname;
+				btns = this.shadowRoot.querySelectorAll(".btn");
 			}
 
 			_showAuto() {
@@ -284,60 +299,114 @@
 			}
 
 			// Integration with backend
-			// _handleConnection() {
-			// 	this.status = 'Connected to the websocket server.';
-			// 	console.log(this.status);
-			// }
+			_handleConnection() {
+				this._resetBtns(false);
+				this.$.seperator.style.backgroundColor = "#469bf8";
+				this.$.seperator.style.color = "white";
+			}
 
-			// _handleClose() {
-			// 	this.status = 'Closed connection to the websocket server.';
-			// 	console.log(this.status);
-			// }
+			_handleClose() {
+				this._resetBtns(true);
+				this.$.seperator.style.backgroundColor = "#FFAB36";
+				this.$.seperator.style.color = "black";
+			}
+
+			_handleError() {
+				this._handleClose();
+				this.status = 'Error connecting to the websocket server.';
+			}
 
 			_handleCommandSuccess() {
-				this.$.open_gripper_btn.textContent = "Open Gripper";
-				this.$.close_gripper_btn.textContent = "Close Gripper";
-				this.status = "Gripper Closed";
+				this._handleConnection()
+				this.status = "Auxie, your assisitve feeder";
+				this._backToOriginal();
 			}
 
 			_handleCommandFail() {
-				this.status = "Gripper Closed";
+				this.$.seperator.style.backgroundColor = "#FFAB36";
+				this.$.seperator.style.color = "black";
+				this.status = "Oops! Something is wrong!";
+				this._backToOriginal();
 			}
 
 			_openGripper() {
+				btn = this.$.open_gripper_btn;
+				btn_original_text = this.$.open_gripper_btn.textContent;
 				this.$.open_gripper_btn.textContent = "Opening gripper...";
+				this.$.open_gripper_btn.disabled = true;
 				this.status = "Opening gripper...";
 				this.$.commandService.call({command: "open"});
 			}
 
 			_closeGripper() {
+				btn = this.$.close_gripper_btn;
+				btn_original_text = this.$.close_gripper_btn.textContent;
 				this.$.close_gripper_btn.textContent = "Closing gripper...";
+				this.$.close_gripper_btn.disabled = true;
 				this.status = "Closing gripper...";
 				this.$.commandService.call({command: "close"});
 			}
 
 			_setGripper() {
-				// this.status =  'Setting arm...';
-				var desiredPosition = [this.desiredGripperX.toString(), this.desiredGripperY.toString(), this.desiredGripperZ.toString()];
-				this.$.commandService.call({command: "move", args: desiredPosition});
+				btn = this.$.set_gripper_btn;
+				btn_original_text = this.$.set_gripper_btn.textContent;
+				this.$.set_gripper_btn.textContent = "SETTING";
+				this.$.set_gripper_btn.disabled = true;
+				this.status = "Setting gripper position...";
+				argsForService = [this.desiredGripperX.toString(), this.desiredGripperY.toString(), this.desiredGripperZ.toString()];
+				this.$.commandService.call({command: "move", args: argsForService});
 			}
 
 			_grabFork() {
-				var arg = ["fork"];
-				this.$.open_gripper_btn.textContent = "Grabbing fork...";
-				this.$.commandService.call({command: "run", args: arg});
+				btn = this.$.grab_fork_btn;
+				btn_original_text = this.$.grab_fork_btn.textContent;
+				argsForService = ["fork"];
+				this.$.grab_fork_btn.textContent = "Grabbing fork...";
+				this.$.grab_fork_btn.disabled = true;
+				this.$.commandService.call({command: "run", args: argsForService});
 			}
 
 			_grabSpoon() {
-				var arg = ["spoon"];
-				this.$.open_gripper_btn.textContent = "Grabbing spoon...";
-				this.$.commandService.call({command: "run", args: arg});
+				btn = this.$.grab_spoon_btn;
+				btn_original_text = this.$.grab_spoon_btn.textContent;
+				argsForService = ["spoon"];
+				this.$.grab_spoon_btn.textContent = "Grabbing spoon...";
+				this.$.grab_spoon_btn.disabled = true;
+				this.$.commandService.call({command: "run", args: argsForService});
 			}
 
 			_feed() {
-				var arg = ["feed"];
-				this.$.open_gripper_btn.textContent = "Opening gripper...";
-				this.$.commandService.call({command: "run", args: arg});
+				btn = this.$.feed_btn;
+				btn_original_text = this.$.feed_btn.textContent;
+				argsForService = ["feed"];
+				this.$.feed_btn.textContent = "Feeding...";
+				this.$.feed_btn.disabled = true;
+				this.$.commandService.call({command: "run", args: argsForService});
+			}
+
+			_emergencyStop() {
+				btn = this.$.emergency_stop_btn;
+				btn_original_text = this.$.emergency_stop_btn.textContent;
+				// argsForService = ["feed"];
+				this.$.emergency_stop_btn.textContent = "STOPPING AUXIE";
+				this.$.emergency_stop_btn.disabled = true;
+				this.$.emergency_stop_btn.style.color = "white";
+				// this.$.commandService.call({command: "run", args: argsForService});
+			}
+
+			_backToOriginal() {
+				// change the button property back to its original ones
+				btn.textContent = btn_original_text;
+				btn.disabled = false;
+				if (btn == this.$.emergency_stop_btn) {
+					btn.style.color = "black";
+				}
+			}
+
+			_resetBtns(isDisabled) {
+				for (var i = 0; i < btns.length; i++) { 
+					btns[i].disabled = isDisabled;
+				}
 			}
 		}
 
