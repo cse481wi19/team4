@@ -14,13 +14,14 @@ import tf
 import tf.transformations as tft
 import robot_api
 import math
+import os
 import pickle
 from map_annotator.msg import PoseNames, UserAction
 
 class Database(object):
     def __init__(self):
         self._markers = {}
-        self.db_path = 'marker_db.p'
+        self.db_path = os.path.join('/home/team4/', "marker_db.p")
 
     def get(self, name):
         if name in self._markers:

@@ -16,6 +16,14 @@
 			on-error="_handleError"
 	    ></ros-websocket>
 
+	    <ros-topic auto
+	      ros="{{ros}}"
+	      topic="face_coord"
+	      msg-type="geometry_msgs/Quaternion"
+	      last-message="{{faces}}"
+	      on-message="_handleFace"
+	    ></ros-topic>
+
 	    <ros-topic
 	        id="baseTopic"
 	        ros="{{ros}}"
@@ -34,27 +42,34 @@
 
  		<div id="interface">
 	        <div id="header">
-	            <img src="src/auxielogo_sm.jpeg" alt="auxie logo" width="220" height="auto"/>
+	            <img src="src/auxielogo_sm.jpeg" alt="auxie logo" width="200" height="auto" />
 	            <div id="seperator">
 	                <h2>[[status]]</h2>
 	            </div>
 	        </div>
-	        
+
 	        <div id="main_interface">
+	        	<div id="camera">
+			        <img id="cameraframe" src="//[[hostname]]:8000/stream?topic=/head_camera/rgb/image_raw" />
+			        <div id="label"></div>
+			    </div>
+
 	            <div id="auto">
 	                <h3>Auto Mode <paper-button id="info_btn" on-tap="_showAutoInfo"><img src="src/info.png" alt="get_info" width="20" height="auto" /></paper-button></h3>
 
 	                <div id="auto_info" style="display:none">
-	                	<p><b>Grab Fork</b>: Let Auxie fetch the fork.</p>
-	                	<p><b>Grab Spoon</b>: Let Auxie fetch the spoon.</p>
+	                	<p><b>To Face</b>: Move Auxie's gripper near your face.</p>
+	                	<p><b>Reset</b>: Reset the arm to upper right position.</p>
 	                	<p><b>Feed</b>: Let Auxie feed you!</p>
 	                	<p><b>EMERGENCY STOP</b>: STOP AUXIE'S MOVE IMMEDIATELY!!!</p>
 	                </div>
 
 	                <div id="feeding">
-	                    <paper-button id="grab_fork_btn" on-tap="_grabFork" class="btn">Grab Fork</paper-button>
-	                    <paper-button id="grab_spoon_btn" on-tap="_grabSpoon" class="btn">Grab Spoon</paper-button>
-	                    <paper-button id="feed_btn" on-tap="_feed" class="btn">Feed</paper-button>
+	                	<div id="horizontal_btn">
+		                    <paper-button id="grab_fork_btn" on-tap="_grabFork" class="btn">To Face</paper-button>
+		                    <paper-button id="grab_spoon_btn" on-tap="_grabSpoon" class="btn">Reset</paper-button>
+		                </div>
+	                    <paper-button id="feed_btn" on-tap="_feed" class="btn">FEED</paper-button>
 	                </div>
 	            </div>
 	            
@@ -65,31 +80,59 @@
 						<p><b>Gripper Position</b>: Set Auxie's gripper position by specifying the gripper's X, Y and Z value with respect to its base. After you've specified all three values, click "Set Gripper Position" and Auxie will move its "hand" to the place you want!</p>
 	                	<p><b>Open Gripper</b>: Open Auxie's gripper.</p>
 	                	<p><b>Close Gripper</b>: Close Auxie's gripper.</p>
+	                	<p><b>Base Control</b>: Drive Auxie to the place you want by pushing the four direction buttons. Auxie will stop moving once you stop pushing the button.</p>
 	                	<p><b>EMERGENCY STOP</b>: STOP AUXIE'S MOVE IMMEDIATELY!!!</p>
 	                </div>
 
-	                <h4>Gripper Position</h4>
-	                <div class="slidecontainer">
-	                	<span>X</span>
-	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperX}}"></paper-slider>
-	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
-	                </div>
-	                <div class="slidecontainer">
-	                	<span>Y</span>
-	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperY}}"></paper-slider>
-	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
-	                </div>
-	                <div class="slidecontainer">
-	                	<span>Z</span>
-	                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperZ}}"></paper-slider>
-	                    <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
-	                </div>
-	                <paper-button id="set_gripper_btn" on-tap="_setGripper" class="btn">Set Gripper Position</paper-button>
+			        <div id="manual_tab">
+			            <paper-button id="gripper_position_tab" on-tap="_showGripperPosition">Gripper Position</paper-button>
+			            <paper-button id="base_control_tab" on-tap="_showBaseControl">Base Control</paper-button>  
+			        </div>
 
-	                <div id="manual_btns">
-	                    <paper-button id="open_gripper_btn" on-tap="_openGripper" class="btn">Open Gripper</paper-button>
-	                    <paper-button id="close_gripper_btn" on-tap="_closeGripper" class="btn">Close Gripper</paper-button>
-	                </div>
+	                <div id="gripper">
+		                <div class="slidecontainer">
+		                	<span>X</span>
+		                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperX}}"></paper-slider>
+		                </div>
+		                <div class="slidecontainer">
+		                	<span>Y</span>
+		                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperY}}"></paper-slider>
+		                </div>
+		                <div class="slidecontainer">
+		                	<span>Z</span>
+		                	<paper-slider min="-1.6" max="1.6" step="0.01" editable value="{{desiredGripperZ}}"></paper-slider>
+		                </div>
+		                <paper-button id="set_gripper_btn" on-tap="_setGripper" class="btn">Set Gripper Position</paper-button>
+
+		                <div id="manual_btns">
+		                    <paper-button id="open_gripper_btn" on-tap="_openGripper" class="btn">Open Gripper</paper-button>
+		                    <paper-button id="close_gripper_btn" on-tap="_closeGripper" class="btn">Close Gripper</paper-button>
+		                </div>
+		            </div>
+
+	                <div id="base" style="display:none">
+				        <div>
+							<paper-button
+							id="forward_btn"
+							on-down="_startForward"
+							on-up="_endBaseCommand"
+							>Forward</paper-button>
+				        </div>
+				        <div>
+							<paper-button
+							on-down="_startLeft"
+							on-up="_endBaseCommand"
+							>Left</paper-button>
+							<paper-button
+							on-down="_startBack"
+							on-up="_endBaseCommand"
+							>Back</paper-button>
+							<paper-button
+							on-down="_startRight"
+							on-up="_endBaseCommand"
+							>Right</paper-button>
+				        </div>
+				    </div>
 	            </div>
 
 	            <paper-button id="emergency_stop_btn" on-tap="_emergencyStop" class="btn">EMERGENCY STOP</paper-button>
@@ -142,15 +185,19 @@
 
 			#auto, #manual {
 				color: #435772;
-				margin-bottom: 1.3em;
+				margin-bottom: 0.8em;
+			}
+
+			#auto {
+				margin-bottom: 0.8em;
+			}
+
+			#manual {
+				margin-bottom: 1.2em;
 			}
 
 			#manual {
 			    display: none; 
-			}
-
-			#manual h4 {
-				margin-bottom: 0.5em;
 			}
 
 			#tab {
@@ -182,6 +229,8 @@
 
 			h3 {
 			    font-size: 1.3em;
+			    margin-top: 0.5em;
+			    margin-bottom: 0.8em;
 			}
 
 			#feeding {
@@ -237,6 +286,67 @@
 				width: 50%; 
 				margin: auto;
 			}
+
+			.slidecontainer paper-slider {
+			    height: 2.2em;
+			}
+
+			#horizontal_btn {
+				display: flex;
+			    flex-direction: row;
+			    width: 55%;
+			    margin: auto;
+			}
+
+			#grab_fork_btn {
+				margin-right: 0.5em !important;
+			}
+
+			#grab_spoon_btn {
+				margin-left: 0.5em !important;
+			}
+
+			#forward_btn {
+				margin-bottom: 0.8em;
+			}
+
+			#manual_tab {
+				margin-bottom: 1.5em;
+			}
+
+			#base {
+				padding-bottom: 0.8em;
+			}
+
+			#manual_tab {
+			    width: 100%;
+			    display: grid;
+			    grid-template-columns: 1fr 1fr;
+			    grid-template-rows: 1fr;
+			}
+
+			#manual_tab paper-button {
+				color: black;
+			}
+
+			#gripper_position_tab {
+				font-weight: 700;
+			}
+
+	    	#camera img {
+				width: 75%;
+			}
+
+			#camera {
+				position: relative;
+			}
+
+			#label {
+				border: solid 2px yellow;
+				width: 10px;
+				height: 10px;
+				position: absolute;
+				}
 		</style>
 	</template>
 
@@ -253,6 +363,8 @@
 		var btn_original_text;
 		// all the functional buttons
 		var btns;
+		// scale
+		const scale = 640 * window.screen.width * 0.75;
 
 		class WebTeleopApp extends Polymer.Element {
 			static get is() { return 'auxie-teleop-app'; }
@@ -296,6 +408,23 @@
 				} else {
 					this.$.manual_info.style.display = "none";
 				}
+			}
+
+			_handleFace(evt) {
+				var right_position = (evt.detail.x )/ 640 * window.screen.width;
+	            this.$.label.style.left = right_position.toString() + "px";
+	            var length = getComputedStyle(this.$.cameraframe).height.length;
+				var top_position = evt.detail.y * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
+	            this.$.label.style.top = top_position.toString() + "px";
+	            var height = evt.detail.w * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
+	            this.$.label.style.height = height.toString() + "px";
+	            this.$.label.style.width = height.toString() + "px";
+	   //          console.log(evt.detail.x );
+	   // this.$.label.style.top = "90px";
+	            console.log(evt.detail.z);
+	            console.log(evt.detail.w);
+	        	// this.$.label.style.width = evt.detail.z;
+	        	// this.$.label.style.height = evt.detail.w;
 			}
 
 			// Integration with backend
@@ -357,13 +486,72 @@
 				this.$.commandService.call({command: "move", args: argsForService});
 			}
 
+			_startForward(evt) {
+				evt.preventDefault(); // Prevent right-click menu from showing up after long press on mobile
+				this._move(this, "forward");
+			}
+
+			_startBack(evt) {
+				evt.preventDefault();
+				this._move(this, "back");
+			}
+
+			_startLeft(evt) {
+				evt.preventDefault();
+				this._move(this, "left");
+			}
+
+			_startRight(evt) {
+				evt.preventDefault();
+				this._move(this, "right");
+			}
+
+			_move(obj, direction) {
+				obj.status = 'Driving ' + direction + '...';
+				var baseTopic = this.$.baseTopic; // Get <ros-topic>
+				if (this.baseCommand) {
+					// The timer should not be set at this point, but clear it just in case
+					clearInterval(this.baseCommand);
+				}
+				var xv = 0;
+				var yv = 0;
+				if (direction == "forward") {
+					xv = 0.5;
+				} else if (direction == "back") {
+					xv = -0.5;
+				} else if (direction == "left") {
+					yv = 0.2;
+				} else {
+					yv = -0.2;
+				}
+				this.baseCommand = setInterval(function() {
+					baseTopic.publish({
+						linear: {
+						x: xv, // Set positive or negative meters/s to drive
+						y: 0,
+						z: 0
+						},
+						angular: {
+						x: 0,
+						y: 0,
+						z: yv // Set rads/s to turn
+						}
+					});
+				}, 10); // Run this function every 10ms, or approximately 100 times per second.
+			}
+
+			_endBaseCommand(evt) {
+				this.status = "Auxie, your assisitve feeder";
+				clearInterval(this.baseCommand);
+			}
+
 			_grabFork() {
 				btn = this.$.grab_fork_btn;
 				btn_original_text = this.$.grab_fork_btn.textContent;
-				argsForService = ["fork"];
+				argsForService = ["face"];
 				this.$.grab_fork_btn.textContent = "Grabbing fork...";
 				this.$.grab_fork_btn.disabled = true;
-				this.$.commandService.call({command: "run", args: argsForService});
+				this.$.commandService.call({command: "face", args: argsForService});
 			}
 
 			_grabSpoon() {
@@ -372,28 +560,44 @@
 				argsForService = ["spoon"];
 				this.$.grab_spoon_btn.textContent = "Grabbing spoon...";
 				this.$.grab_spoon_btn.disabled = true;
-				this.$.commandService.call({command: "run", args: argsForService});
+				this.$.commandService.call({command: "reset", args: argsForService});
 			}
 
 			_feed() {
 				btn = this.$.feed_btn;
 				btn_original_text = this.$.feed_btn.textContent;
-				argsForService = ["feed"];
+				argsForService = ["foodpick"];
 				this.$.feed_btn.textContent = "Feeding...";
 				this.$.feed_btn.disabled = true;
 				this.$.commandService.call({command: "run", args: argsForService});
 			}
 
 			_emergencyStop() {
+				this._backToOriginal();
 				btn = this.$.emergency_stop_btn;
 				btn_original_text = this.$.emergency_stop_btn.textContent;
 				// argsForService = ["feed"];
 				this.$.emergency_stop_btn.textContent = "STOPPING AUXIE";
 				this.$.emergency_stop_btn.disabled = true;
 				this.$.emergency_stop_btn.style.color = "white";
-				// this.$.commandService.call({command: "run", args: argsForService});
+				this.$.commandService.call({command: "stop"});
 			}
 
+			_showGripperPosition() {
+				this.$.gripper_position_tab.style.fontWeight = "700";
+				this.$.gripper.style.display = "block";
+				this.$.base_control_tab.style.fontWeight = "300";
+				this.$.base.style.display = "none";
+			}
+
+			_showBaseControl() {
+				this.$.gripper_position_tab.style.fontWeight = "300";
+				this.$.gripper.style.display = "none";
+				this.$.base_control_tab.style.fontWeight = "700";
+				this.$.base.style.display = "block";
+			}
+
+			// helper functions
 			_backToOriginal() {
 				// change the button property back to its original ones
 				btn.textContent = btn_original_text;

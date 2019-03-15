@@ -617,10 +617,10 @@ private:
           pos.header.frame_id = header.frame_id;//"*_optical_frame";
           pos.reliability = reliability_;
           pos.initialization = 1;//0;
-          pos.covariance[0] = 0.04;
-          pos.covariance[1] = 0.0;
-          pos.covariance[2] = 0.0;
-          pos.covariance[3] = 0.0;
+          pos.covariance[0] = one_face->box2d.x;
+          pos.covariance[1] = one_face->box2d.y;
+          pos.covariance[2] = one_face->box2d.width;
+          pos.covariance[3] = one_face->box2d.height;
           pos.covariance[4] = 0.04;
           pos.covariance[5] = 0.0;
           pos.covariance[6] = 0.0;

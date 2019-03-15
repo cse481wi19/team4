@@ -53,7 +53,17 @@ def main():
     server = robot_api.Manager(database, arm, gripper, facedetector, fooddetector)
     controller_client = actionlib.SimpleActionClient('/query_controller_states', QueryControllerStatesAction)
     print_help()
-    
+    def reset():
+        ps = PoseStamped()
+        ps.pose.position.x = 0.46
+        ps.pose.position.y = -0.43
+        ps.pose.position.z = 1.05
+        ps.pose.orientation.x = 0.38
+        ps.pose.orientation.y = 0.08
+        ps.pose.orientation.z = 0.23
+        ps.pose.orientation.w = 0.89
+        ps.header.frame_id = 'base_link'
+        arm.move_to_pose(ps)
     while(True):
         command = raw_input("> ")
         # print(command)
@@ -103,16 +113,7 @@ def main():
             print_help()
 
         elif command[:5] == "reset":
-            ps = PoseStamped()
-            ps.pose.position.x = 0.46
-            ps.pose.position.y = -0.43
-            ps.pose.position.z = 1.05
-            ps.pose.orientation.x = 0.38
-            ps.pose.orientation.y = 0.08
-            ps.pose.orientation.z = 0.23
-            ps.pose.orientation.w = 0.89
-            ps.header.frame_id = 'base_link'
-            arm.move_to_pose(ps)
+            reset()
 
         elif command[:4] == "move":
             if len(command[5:]) == 0:
@@ -133,6 +134,7 @@ def main():
                         arm.move_to_pose(facedetector.pose)
                     else:
                         print("No face is detected.")
+                        reset()
                 else:
                     if fooddetector.pose is not None:
                         arm.move_to_pose(fooddetector.pose)
@@ -168,7 +170,9 @@ def main():
             print("Invalid command, please re-enter :)")
 
     def handle_shutdown():
-        database.save()    
+        database.save()   
+
+   
 
     rospy.on_shutdown(handle_shutdown)
 

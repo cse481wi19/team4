@@ -184,6 +184,9 @@ class Arm(object):
                 return moveit_error_string(result.error_code.val)
         else:
             return 'UNKNOWN_ERROR_CODE'
+            
+    def stop(self):
+        self.move_group_client.cancel_goal()
 
     def check_pose(self, 
                    pose_stamped,

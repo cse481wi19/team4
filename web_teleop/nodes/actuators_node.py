@@ -15,6 +15,7 @@ import tf
 import tf.transformations as tft
 import robot_api
 import math
+import sys
 import pickle
 from map_annotator.msg import PoseNames, UserAction
 
@@ -35,9 +36,31 @@ class CommandServer(object):
         self.server = robot_api.Manager(self.database, self.arm, self.gripper, self.facedetector, self.fooddetector)
 
     def parse_command(self, request):
+        rospy.loginfo(request.command)
+        sys.stderr.write(request.command)
         if request.command == "run":
-            self.server.run(request.argv[0])
+            self.server.run(request.args[0])
+            sys.stderr.write(request.command)
+            print(request.args[0])
+            return CommandServiceResponse()
 
+        if request.command == "face":
+            if self.facedetector.pose is not None:
+                self.arm.move_to_pose(self.facedetector.pose)
+            else:
+                self.gripper.open()
+            return CommandServiceResponse()
+        if request.command == "reset":
+            ps = PoseStamped()
+            ps.pose.position.x = 0.46
+            ps.pose.position.y = -0.43
+            ps.pose.position.z = 1.05
+            ps.pose.orientation.x = 0.38
+            ps.pose.orientation.y = 0.08
+            ps.pose.orientation.z = 0.23
+            ps.pose.orientation.w = 0.89
+            ps.header.frame_id = 'base_link'
+            self.arm.move_to_pose(ps)
         elif request.command == "relax":
             goal = QueryControllerStatesGoal()
             state = ControllerState()
@@ -63,6 +86,10 @@ class CommandServer(object):
 
         elif request.command == "open":
             self.gripper.open()
+            return CommandServiceResponse()
+
+        elif request.command == "stop":
+            self.arm.stop()
             return CommandServiceResponse()
 
 

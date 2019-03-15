@@ -52,7 +52,7 @@ class Manager(object):
     # Currently only add pose relative to tag instead of base_link
     def add(self, name, tag):
         # Calculate the coordinate of wrist based on base_link frame
-        if not self.savedBefore:
+        if name not in self.db.list():
             self.reader.update()
             self.savedBefore = True
             self.fooddetector.getFood()
@@ -102,7 +102,6 @@ class Manager(object):
         self.savedBefore = False
         self.fooddetector.getFood()
         rospy.sleep(3)
-
         if self.db.get(name) is not None:
             for offset, tag in self.db.get(name):
                 if tag == 'base_link':
