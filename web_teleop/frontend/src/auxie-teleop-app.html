@@ -59,7 +59,7 @@
 
 	                <div id="auto_info" style="display:none">
 	                	<p><b>To Face</b>: Move Auxie's gripper near your face.</p>
-	                	<p><b>Reset</b>: Reset the arm to upper right position.</p>
+	                	<p><b>Reset</b>: Reset the arm to the upper right position.</p>
 	                	<p><b>Feed</b>: Let Auxie feed you!</p>
 	                	<p><b>EMERGENCY STOP</b>: STOP AUXIE'S MOVE IMMEDIATELY!!!</p>
 	                </div>
@@ -77,7 +77,7 @@
 	                <h3>Manual Mode <paper-button id="info_btn" on-tap="_showManualInfo"><img src="src/info.png" alt="get_info" width="20" height="auto" /></paper-button></h3>
 	                
 	                <div id="manual_info" style="display:none">
-						<p><b>Gripper Position</b>: Set Auxie's gripper position by specifying the gripper's X, Y and Z value with respect to its base. After you've specified all three values, click "Set Gripper Position" and Auxie will move its "hand" to the place you want!</p>
+				<p><b>Gripper Position</b>: Set Auxie's gripper position by specifying the gripper's X, Y and Z value with respect to its base. After you've specified all three values, click "Set Gripper Position" and Auxie will move its "hand" to the place you want!</p>
 	                	<p><b>Open Gripper</b>: Open Auxie's gripper.</p>
 	                	<p><b>Close Gripper</b>: Close Auxie's gripper.</p>
 	                	<p><b>Base Control</b>: Drive Auxie to the place you want by pushing the four direction buttons. Auxie will stop moving once you stop pushing the button.</p>
@@ -426,9 +426,16 @@
 	            this.$.label.style.height = height.toString() + "px";
 	            this.$.label.style.width = height.toString() + "px";
 	            console.log(xoffset);
-	   // this.$.label.style.top = "90px";
-	        	// this.$.label.style.width = evt.detail.z;
-	        	// this.$.label.style.height = evt.detail.w;
+
+
+				// var right_position = (evt.detail.x )/ 640 * window.screen.width;
+	   //          		this.$.label.style.left = right_position.toString() + "px";
+	   //          		var length = getComputedStyle(this.$.cameraframe).height.length;
+				// var top_position = evt.detail.y * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
+				// this.$.label.style.top = top_position.toString() + "px";
+				// var height = evt.detail.w * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
+				// this.$.label.style.height = height.toString() + "px";
+				// this.$.label.style.width = height.toString() + "px";
 			}
 
 			// Integration with backend
@@ -553,7 +560,7 @@
 				btn = this.$.grab_fork_btn;
 				btn_original_text = this.$.grab_fork_btn.textContent;
 				argsForService = ["face"];
-				this.$.grab_fork_btn.textContent = "Grabbing fork...";
+				this.$.grab_fork_btn.textContent = "Moving...";
 				this.$.grab_fork_btn.disabled = true;
 				this.$.commandService.call({command: "face", args: argsForService});
 			}
@@ -562,7 +569,7 @@
 				btn = this.$.grab_spoon_btn;
 				btn_original_text = this.$.grab_spoon_btn.textContent;
 				argsForService = ["spoon"];
-				this.$.grab_spoon_btn.textContent = "Grabbing spoon...";
+				this.$.grab_spoon_btn.textContent = "Resetting...";
 				this.$.grab_spoon_btn.disabled = true;
 				this.$.commandService.call({command: "reset", args: argsForService});
 			}
@@ -619,6 +626,5 @@
 		}
 		window.customElements.define(WebTeleopApp.is, WebTeleopApp);
 	</script>
-
 
 </dom-module>
