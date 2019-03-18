@@ -334,7 +334,9 @@
 			}
 
 	    	#camera img {
-				width: 75%;
+
+				width: 320px;
+				height: 240px;
 			}
 
 			#camera {
@@ -411,7 +413,11 @@
 			}
 
 			_handleFace(evt) {
-				var right_position = (evt.detail.x )/ 640 * window.screen.width;
+				console.log(evt.detail)
+				this.$.label.style.display = "block";
+				var wlength = getComputedStyle(this.$.cameraframe).width.length;
+				var xoffset = (window.screen.width -  parseFloat(getComputedStyle(this.$.cameraframe).width.substring(0,wlength - 2))) / 2;
+				var right_position = evt.detail.x * parseFloat(getComputedStyle(this.$.cameraframe).width.substring(0,wlength - 2)) / 640 + xoffset;
 	            this.$.label.style.left = right_position.toString() + "px";
 	            var length = getComputedStyle(this.$.cameraframe).height.length;
 				var top_position = evt.detail.y * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
@@ -419,10 +425,8 @@
 	            var height = evt.detail.w * parseFloat(getComputedStyle(this.$.cameraframe).height.substring(0,length - 2)) / 480;
 	            this.$.label.style.height = height.toString() + "px";
 	            this.$.label.style.width = height.toString() + "px";
-	   //          console.log(evt.detail.x );
+	            console.log(xoffset);
 	   // this.$.label.style.top = "90px";
-	            console.log(evt.detail.z);
-	            console.log(evt.detail.w);
 	        	// this.$.label.style.width = evt.detail.z;
 	        	// this.$.label.style.height = evt.detail.w;
 			}
@@ -452,9 +456,9 @@
 			}
 
 			_handleCommandFail() {
-				this.$.seperator.style.backgroundColor = "#FFAB36";
-				this.$.seperator.style.color = "black";
-				this.status = "Oops! Something is wrong!";
+				// this.$.seperator.style.backgroundColor = "#FFAB36";
+				// this.$.seperator.style.color = "black";
+				// this.status = "Oops! Something is wrong!";
 				this._backToOriginal();
 			}
 
@@ -566,7 +570,7 @@
 			_feed() {
 				btn = this.$.feed_btn;
 				btn_original_text = this.$.feed_btn.textContent;
-				argsForService = ["foodpick"];
+				argsForService = ["test2"];
 				this.$.feed_btn.textContent = "Feeding...";
 				this.$.feed_btn.disabled = true;
 				this.$.commandService.call({command: "run", args: argsForService});
@@ -613,7 +617,6 @@
 				}
 			}
 		}
-
 		window.customElements.define(WebTeleopApp.is, WebTeleopApp);
 	</script>
 

@@ -186,7 +186,8 @@ class Arm(object):
             return 'UNKNOWN_ERROR_CODE'
             
     def stop(self):
-        self.move_group_client.cancel_goal()
+        cur = rospy.Time.now()
+        self.move_group_client.cancel_goals_at_and_before_time(cur)
 
     def check_pose(self, 
                    pose_stamped,

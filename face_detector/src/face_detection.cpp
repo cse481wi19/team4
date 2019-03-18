@@ -41,7 +41,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-
+#include <string> 
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <boost/filesystem.hpp>
@@ -778,7 +778,10 @@ private:
         {
           color = cv::Scalar(0, 0, 255);
         }
-
+        stringstream ss;
+        ss << " x: " << one_face->center3d.x << " y: " << one_face->center3d.y << " z: " << one_face->center3d.z << endl;
+        string s=ss.str();
+        cv::putText(cv_image_out_, s, cv::Point(one_face->box2d.x - 50, one_face->box2d.y- 6), cv::FONT_HERSHEY_PLAIN, 1, color);
         cv::rectangle(cv_image_out_,
                       cv::Point(one_face->box2d.x, one_face->box2d.y),
                       cv::Point(one_face->box2d.x + one_face->box2d.width, one_face->box2d.y + one_face->box2d.height), color, 4);

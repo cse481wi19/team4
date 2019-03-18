@@ -89,7 +89,23 @@ class CommandServer(object):
             return CommandServiceResponse()
 
         elif request.command == "stop":
-            self.arm.stop()
+            goal = QueryControllerStatesGoal()
+            state = ControllerState()
+            state.name = 'arm_controller/follow_joint_trajectory'
+            state.state = ControllerState.STOPPED
+            goal.updates.append(state)
+            self.controller_client.send_goal(goal)
+            self.controller_client.wait_for_result(rospy.Duration(1))
+            return CommandServiceResponse()
+
+        elif request.command == "restart":
+            goal = QueryControllerStatesGoal()
+            state = ControllerState()
+            state.name = 'arm_controller/follow_joint_trajectory'
+            state.state = ControllerState.RUNNING
+            goal.updates.append(state)
+            self.controller_client.send_goal(goal)
+            self.controller_client.wait_for_result(rospy.Duration(1))
             return CommandServiceResponse()
 
 
